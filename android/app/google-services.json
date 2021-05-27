@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "819370213739",
+    "project_id": "meditopgo-a2216",
+    "storage_bucket": "meditopgo-a2216.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:819370213739:android:af53eec4f03ed9a2120c2e",
+        "android_client_info": {
+          "package_name": "com.wamdev.meditop_go"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "819370213739-ccqsv5d6dqf6vggeq97p0pu6nbepacp7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.wamdev.meditop_go",
+            "certificate_hash": "eaef89446d2d4c327f4776923f23cbf3ad0ce194"
+          }
+        },
+        {
+          "client_id": "819370213739-vjvmtn5vmnp8jll1ui2ai9vpppakemf0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBxJuGrL_xEqvJ7ZrOmtz9WiAh1uoQ1Yyo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "819370213739-vjvmtn5vmnp8jll1ui2ai9vpppakemf0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

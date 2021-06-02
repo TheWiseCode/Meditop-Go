@@ -3,6 +3,6 @@ import 'src/app.dart';
 
 void main() async{
   //topics.main();
-  MyApp app = MyApp();
-  runApp(app);
+  //MyApp app = MyApp();
+  runApp(MyApp());
 }

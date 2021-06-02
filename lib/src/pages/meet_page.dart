@@ -8,7 +8,8 @@ import 'package:jitsi_meet/jitsi_meet.dart';
 class MyAppJitsi extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(debugShowCheckedModeBanner: false, home: Meeting());
+    //return MaterialApp(debugShowCheckedModeBanner: false, home: Meeting());
+    return Meeting();
   }
 }
 

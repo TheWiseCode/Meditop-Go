@@ -1,23 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:meditop_go/src/pages/notification_page.dart';
-import 'pages/meet_page.dart';
+import 'models/database.dart';
 import 'pages/home_page.dart';
+import 'pages/login_page.dart';
+import 'pages/meet_page.dart';
+import 'pages/register_page.dart';
 import 'providers/push_notification_provider.dart';
 
-// ignore: must_be_immutable
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
 
+  MyApp({Key? key}) : super(key: key);
+
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+
+  UserDatabase db = UserDatabase();
   GlobalKey<NavigatorState> navKey = new GlobalKey<NavigatorState>();
   late PushNotificationProvider provider;
 
-  MyApp({Key? key}) : super(key: key){
+  Future<void> init() async {
     provider = PushNotificationProvider(navKey);
-    init();
+    await provider.initNotifications();
+    //await PushNotificationProvider.initNotifications();
+    provider.mensajes.listen((args) {
+      navKey.currentState!.pushNamed("/notification", arguments: args);
+    });
   }
 
-  Future<void> init() async {
-    //await PushNotificationProvider.initNotifications();
-    await provider.initNotifications();
+  @override
+  void initState() {
+    super.initState();
+    init();
+    //db.initDB();
   }
 
   @override
@@ -34,20 +51,23 @@ class MyApp extends StatelessWidget {
       title: 'Meditop Go',
       initialRoute: "/",
       onGenerateRoute: (RouteSettings settings) {
-        print(settings.arguments);
         // ignore: missing_return
         return MaterialPageRoute(
           builder: (BuildContext context) {
             switch (settings.name) {
               case "/":
-                return MyHomePage();
+                return HomePage();
+              case "/login":
+                return LoginPage();
+              case "/register":
+                return RegisterPage();
               case "/meet":
                 return Meeting();
               case "/notification":
                 String? texto = settings.arguments as String?;
                 return NotificationPage(texto: texto);
               default:
-                return MyHomePage();
+                return HomePage();
           }
         });
       /*routes: {

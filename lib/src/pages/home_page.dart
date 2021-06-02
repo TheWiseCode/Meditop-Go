@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:meditop_go/src/models/database.dart';
 
-class MyHomePage extends StatelessWidget {
-  const MyHomePage({Key? key}) : super(key: key);
+class HomePage extends StatelessWidget {
+  UserDatabase db = UserDatabase();
+  HomePage({Key? key}) : super(key: key){
+    //db.initDB();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -10,13 +14,29 @@ class MyHomePage extends StatelessWidget {
       body: ListView(
         children: [
           Container(
-            margin: EdgeInsets.symmetric(horizontal: 50, vertical: 10),
+            margin: EdgeInsets.symmetric(horizontal: 50, vertical: 5),
             // ignore: deprecated_member_use
             child: RaisedButton(
               onPressed: () => _mostrarReunion(context),
               child: Text("Entrar a reunion"),
             )
-          )
+          ),
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: 50, vertical:5),
+            // ignore: deprecated_member_use
+            child: RaisedButton(
+              onPressed: () => Navigator.of(context).pushNamed("/login"),
+              child: Text("Login"),
+            )
+          ),
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: 50, vertical: 5),
+            // ignore: deprecated_member_use
+            child: RaisedButton(
+              onPressed: () => Navigator.of(context).pushNamed("/register"),
+              child: Text("Register"),
+            )
+          ),
         ],
       ),
     );
@@ -24,5 +44,8 @@ class MyHomePage extends StatelessWidget {
 
   void _mostrarReunion(BuildContext context){
     Navigator.of(context).pushNamed("/meet");
+    /*User user = User(name: "will", password: "will3148");
+    db.insert(user);
+    print("SUPUESTA INSERCION");*/
   }
 }

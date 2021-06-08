@@ -5,20 +5,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:jitsi_meet/jitsi_meet.dart';
 
-class MyAppJitsi extends StatelessWidget {
+class MeetPage extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    //return MaterialApp(debugShowCheckedModeBanner: false, home: Meeting());
-    return Meeting();
-  }
+  _MeetPageState createState() => _MeetPageState();
 }
 
-class Meeting extends StatefulWidget {
-  @override
-  _MeetingState createState() => _MeetingState();
-}
-
-class _MeetingState extends State<Meeting> {
+class _MeetPageState extends State<MeetPage> {
   final serverText = TextEditingController();
   final roomText = TextEditingController(text: "willy.room");
   final subjectText = TextEditingController(text: "Test de Reunion con Jitsi");

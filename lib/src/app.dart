@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:meditop_go/src/constants.dart';
-import 'models/database.dart';
+import 'database/database.dart';
 import 'pages/home/home_page.dart';
 import 'pages/login/login_page.dart';
 import 'pages/meet/meet_page.dart';
 import 'pages/notification/notification_page.dart';
 import 'pages/register/register_page.dart';
+import 'pages/welcome/welcome_page.dart';
 import 'providers/push_notification_provider.dart';
 
 class MyApp extends StatefulWidget {
@@ -18,7 +19,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
 
-  UserDatabase db = UserDatabase();
+  PersonalDatabase db = PersonalDatabase();
   GlobalKey<NavigatorState> navKey = new GlobalKey<NavigatorState>();
   late PushNotificationProvider provider;
 
@@ -35,7 +36,7 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     init();
-    //db.initDB();
+    db.initDB();
   }
 
   @override
@@ -57,19 +58,21 @@ class _MyAppState extends State<MyApp> {
         return MaterialPageRoute(
           builder: (BuildContext context) {
             switch (settings.name) {
-              case "/":
-                return HomePage();
+              case "/welcome":
+                return WelcomePage();
               case "/login":
                 return LoginPage();
               case "/register":
                 return RegisterPage();
               case "/meet":
-                return Meeting();
+                return MeetPage();
+              case "/":
+                return HomePage();
               case "/notification":
                 String? texto = settings.arguments as String?;
                 return NotificationPage(texto: texto);
               default:
-                return HomePage();
+                return WelcomePage();
           }
         });
       /*routes: {

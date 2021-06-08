@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:meditop_go/src/pages/notification_page.dart';
+import 'package:meditop_go/src/constants.dart';
 import 'models/database.dart';
-import 'pages/home_page.dart';
-import 'pages/login_page.dart';
-import 'pages/meet_page.dart';
-import 'pages/register_page.dart';
+import 'pages/home/home_page.dart';
+import 'pages/login/login_page.dart';
+import 'pages/meet/meet_page.dart';
+import 'pages/notification/notification_page.dart';
+import 'pages/register/register_page.dart';
 import 'providers/push_notification_provider.dart';
 
 class MyApp extends StatefulWidget {
@@ -42,7 +43,8 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       theme: ThemeData(
         brightness: Brightness.light,
-        primaryColor: Color.fromRGBO(0x1c, 0x4e, 0x91, 1),
+        primaryColor: kPrimaryColor,
+        scaffoldBackgroundColor: Colors.white,
         accentColor: Colors.indigo[600],
         appBarTheme: AppBarTheme(iconTheme: IconThemeData(color: Colors.white))
       ),

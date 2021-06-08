@@ -57,7 +57,7 @@ class UserDatabase {
   }
 
   Future<int> delete(int id) async {
-    return await _db.delete("users", where: '$id = ?', whereArgs: [id]);
+    return await _db.delete("users", where: 'id = ?', whereArgs: [id]);
   }
 
   Future<int> update(User user) async {

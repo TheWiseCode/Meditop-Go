@@ -66,7 +66,7 @@ class _MyAppState extends State<MyApp> {
                 return RegisterPage();
               case "/meet":
                 return MeetPage();
-              case "/":
+              case "/home":
                 return HomePage();
               case "/notification":
                 String? texto = settings.arguments as String?;

@@ -98,10 +98,7 @@ class _LoginPageState extends State<LoginPage> {
         bool correcto = crypt.checkpw(password, passHashed);
         print('Contraseña correcta: ' + correcto.toString());
         if (correcto) {
-          while(Navigator.of(context).canPop()){
-            Navigator.of(context).pop();
-          }
-          Navigator.of(context).pushReplacementNamed("/");
+          Navigator.of(context).pushNamedAndRemoveUntil("/home", (Route<dynamic> route) => false);
           _showToast(context, "Contraseña correcta");
         } else {
           dialog(context, "Contraseña incorrecta");

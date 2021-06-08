@@ -19,9 +19,8 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
   GlobalKey<FormState> _keyForm = GlobalKey<FormState>();
-  late bool _registroPaciente = true;
-
   Genero gen = Genero.masculino;
+  late bool _registroPaciente = true;
   late String names;
   late String lastNames;
   late String email;
@@ -49,7 +48,7 @@ class _RegisterPageState extends State<RegisterPage> {
               SizedBox(height: size.height * 0.05),
               SizedBox(
                 height: size.height * 0.3,
-                child: SvgPicture.asset(
+                child: Image.asset(
                   "assets/images/register.png",
                 ),
               ),

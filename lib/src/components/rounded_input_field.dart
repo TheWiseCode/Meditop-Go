@@ -10,20 +10,26 @@ class RoundedInputField extends StatelessWidget {
   final TextEditingController? controller;
   final FormFieldSetter<String>? onSaved;
   final FormFieldValidator<String>? validator;
+  late double? width;
 
-  const RoundedInputField({
+  RoundedInputField({
     Key? key,
     required this.hintText,
     this.icon = Icons.person,
     this.onChanged,
     this.controller,
     this.onSaved,
-    this.validator
+    this.validator,
+    this.width
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    if(width == null)
+      width = size.width * 0.8;
     return TextFieldContainer(
+      width: width,
       child: TextFormField(
         validator: validator,
         onSaved: onSaved,

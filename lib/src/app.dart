@@ -52,7 +52,7 @@ class _MyAppState extends State<MyApp> {
       debugShowCheckedModeBanner: false,
       navigatorKey: navKey,
       title: 'Meditop Go',
-      initialRoute: "/",
+      initialRoute: "/welcome",
       onGenerateRoute: (RouteSettings settings) {
         // ignore: missing_return
         return MaterialPageRoute(

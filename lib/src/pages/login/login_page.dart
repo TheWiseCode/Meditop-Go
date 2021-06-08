@@ -1,6 +1,7 @@
 import 'package:dbcrypt/dbcrypt.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:meditop_go/src/components/already_have_an_account_acheck.dart';
 import 'package:meditop_go/src/components/rounded_button.dart';
 import 'package:meditop_go/src/components/rounded_input_field.dart';
@@ -25,7 +26,9 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
+    Size size = MediaQuery
+        .of(context)
+        .size;
     return Scaffold(
       body: Background(
         child: SingleChildScrollView(
@@ -40,9 +43,8 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 SizedBox(height: size.height * 0.05),
                 SizedBox(
-                  height: size.height * 0.3,
-                  child: Image.asset("assets/images/logo.png")
-                ),
+                    height: size.height * 0.3,
+                    child: Image.asset("assets/images/logo.png")),
                 /*SvgPicture.asset(
                   "assets/icons/login.svg",
                   height: size.height * 0.35,
@@ -50,14 +52,16 @@ class _LoginPageState extends State<LoginPage> {
                 SizedBox(height: size.height * 0.05),
                 RoundedInputField(
                   onSaved: (value) => email = value!,
-                  validator: (value) => value!.isEmpty
+                  validator: (value) =>
+                  value!.isEmpty
                       ? 'Por favor introduzca un correo valido'
                       : null,
                   hintText: "Tu Correo",
                 ),
                 RoundedPasswordField(
                   onSaved: (value) => password = value!,
-                  validator: (value) => value!.isEmpty
+                  validator: (value) =>
+                  value!.isEmpty
                       ? 'Por favor introduzca una contraseña valida'
                       : null,
                 ),
@@ -94,7 +98,11 @@ class _LoginPageState extends State<LoginPage> {
         bool correcto = crypt.checkpw(password, passHashed);
         print('Contraseña correcta: ' + correcto.toString());
         if (correcto) {
-          dialog(context, "Contraseña correcta");
+          while(Navigator.of(context).canPop()){
+            Navigator.of(context).pop();
+          }
+          Navigator.of(context).pushReplacementNamed("/");
+          _showToast(context, "Contraseña correcta");
         } else {
           dialog(context, "Contraseña incorrecta");
         }
@@ -110,17 +118,44 @@ class _LoginPageState extends State<LoginPage> {
   void dialog(BuildContext context, String mensaje) {
     showDialog(
         context: context,
-        builder: (_) => new AlertDialog(
-              title: new Text("Mensaje Login"),
-              content: new Text(mensaje),
-              actions: [
-                FlatButton(
-                  child: Text('Cerrar!'),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                )
-              ],
-            ));
+        builder: (_) =>
+        new AlertDialog(
+          title: new Text("Mensaje Login"),
+          content: new Text(mensaje),
+          actions: [
+            FlatButton(
+              child: Text('Cerrar!'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            )
+          ],
+        ));
+  }
+
+  void _showToast(BuildContext context, String msg) {
+    Widget toast = Container(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(25.0),
+        color: Color.fromRGBO(0, 0, 0, 0.7),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.check, color: Colors.white),
+          SizedBox(
+            width: 12.0,
+          ),
+          Text(msg, style: TextStyle(color: Colors.white)),
+        ],
+      ),
+    );
+    FToast ftoast = FToast();
+    ftoast.init(context);
+    ftoast.showToast(
+        child: toast,
+        gravity: ToastGravity.BOTTOM,
+        toastDuration: Duration(seconds: 2));
   }
 }

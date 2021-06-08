@@ -3,7 +3,12 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_switch/flutter_switch.dart';
 import 'package:jitsi_meet/jitsi_meet.dart';
+import 'package:meditop_go/src/components/rounded_button.dart';
+import 'package:meditop_go/src/components/rounded_input_field.dart';
+
+import '../../constants.dart';
 
 class MeetPage extends StatefulWidget {
   @override
@@ -42,45 +47,44 @@ class _MeetPageState extends State<MeetPage> {
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('Jitsi Meet Example'),
-          backgroundColor: Color.fromRGBO(0x1c, 0x4e, 0x91, 1),//#004e91
+      appBar: AppBar(
+        title: const Text('Jitsi Meet Example'),
+      ),
+      body: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 16.0,
         ),
-        body: Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 16.0,
-          ),
-          child: kIsWeb
-              ? Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(
-                      width: width * 0.30,
-                      child: meetConfig(),
-                    ),
-                    Container(
-                        width: width * 0.60,
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Card(
-                              color: Colors.white54,
-                              child: SizedBox(
-                                width: width * 0.60 * 0.70,
-                                height: width * 0.60 * 0.70,
-                                child: JitsiMeetConferencing(
-                                  extraJS: [
-                                    // extraJs setup example
-                                    '<script>function echo(){console.log("echo!!!")};</script>',
-                                    '<script src="https://code.jquery.com/jquery-3.5.1.slim.js" integrity="sha256-DrT5NfxfbHvMHux31Lkhxg42LY6of8TaYyK50jnxRnM=" crossorigin="anonymous"></script>'
-                                  ],
-                                ),
-                              )),
-                        ))
-                  ],
-                )
-              : meetConfig(),
-        ),
-      );
+        child: kIsWeb
+            ? Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    width: width * 0.30,
+                    child: meetConfig(),
+                  ),
+                  Container(
+                      width: width * 0.60,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Card(
+                            color: Colors.white54,
+                            child: SizedBox(
+                              width: width * 0.60 * 0.70,
+                              height: width * 0.60 * 0.70,
+                              child: JitsiMeetConferencing(
+                                extraJS: [
+                                  // extraJs setup example
+                                  '<script>function echo(){console.log("echo!!!")};</script>',
+                                  '<script src="https://code.jquery.com/jquery-3.5.1.slim.js" integrity="sha256-DrT5NfxfbHvMHux31Lkhxg42LY6of8TaYyK50jnxRnM=" crossorigin="anonymous"></script>'
+                                ],
+                              ),
+                            )),
+                      ))
+                ],
+              )
+            : meetConfig(),
+      ),
+    );
   }
 
   Widget meetConfig() {
@@ -93,122 +97,107 @@ class _MeetPageState extends State<MeetPage> {
     );
     return SingleChildScrollView(
       child: Column(
-        children: <Widget>[
+        children: [
           SizedBox(
             height: 16.0,
           ),
-          TextField(
-            controller: serverText,
-            decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: "URL del servidor",
-                hintText: "Dejar vacio para meet.jitsi.si"),
-          ),
-          SizedBox(
-            height: 14.0,
-          ),
-          TextField(
-            controller: roomText,
-            decoration: InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: "Nombre de la Sala",
-            ),
-          ),
-          SizedBox(
-            height: 14.0,
-          ),
-          TextField(
-            controller: subjectText,
-            decoration: InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: "Tema",
-            ),
-          ),
-          SizedBox(
-            height: 14.0,
-          ),
-          TextField(
-            controller: nameText,
-            decoration: InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: "Nombre a Mostrar",
-            ),
-          ),
-          SizedBox(
-            height: 14.0,
-          ),
-          TextField(
-            controller: emailText,
-            decoration: InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: "Correo",
-            ),
-          ),
+          RoundedInputField(
+              width: double.infinity,
+              controller: serverText,
+              hintText: 'URL del servidor',
+              icon: Icons.link),
+          //Text('Nombre de la sala', textAlign: TextAlign.start),
+          RoundedInputField(
+              width: double.infinity,
+              controller: roomText,
+              hintText: 'Nombre de la sala',
+              icon: Icons.text_fields),
+          RoundedInputField(
+              width: double.infinity,
+              controller: subjectText,
+              hintText: 'Tema',
+              icon: Icons.subject),
+          RoundedInputField(
+              width: double.infinity,
+              controller: nameText,
+              hintText: 'Nombre a mostrar',
+              icon: Icons.person),
+          RoundedInputField(
+              width: double.infinity,
+              controller: emailText,
+              hintText: 'Correo electronico',
+              icon: Icons.alternate_email),
           SizedBox(
             height: 14.0,
           ),
           if (Platform.isIOS) colorIos,
           Padding(
-            padding: const EdgeInsets.only(left: 8.0, right: 4.0),
+            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text("Solo audio", style: TextStyle(fontSize: 16),),
-                Switch(
+                Text(
+                  "Solo audio",
+                  style: TextStyle(fontSize: 16),
+                ),
+                FlutterSwitch(
+                  width: 55.0,
+                  height: 25.0,
+                  toggleSize: 18,
                   value: isAudioOnly,
-                  onChanged: _onAudioOnlyChanged,
+                  onToggle: _onAudioOnlyChanged,
                 ),
               ],
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(left: 8.0, right: 4.0),
+            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text("Sin Audio", style: TextStyle(fontSize: 16),),
-                Switch(
+                Text(
+                  "Sin Audio",
+                  style: TextStyle(fontSize: 16),
+                ),
+                FlutterSwitch(
+                  width: 55.0,
+                  height: 25.0,
+                  toggleSize: 18,
                   value: isAudioMuted,
-                  onChanged: _onAudioMutedChanged,
+                  onToggle: _onAudioMutedChanged,
                 ),
               ],
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(left: 8.0, right: 4.0),
+            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text("Sin Video", style: TextStyle(fontSize: 16),),
-                Switch(
+                Text(
+                  "Sin Video",
+                  style: TextStyle(fontSize: 16),
+                ),
+                FlutterSwitch(
+                  width: 55.0,
+                  height: 25.0,
+                  toggleSize: 18,
                   value: isVideoMuted,
-                  onChanged: _onVideoMutedChanged,
+                  onToggle: _onVideoMutedChanged,
                 ),
               ],
             ),
           ),
           Divider(
-            height: 48.0,
-            thickness: 2.0,
-          ),
-          SizedBox(
-            height: 64.0,
-            width: double.maxFinite,
-            child: ElevatedButton(
-              onPressed: () {
-                _joinMeeting();
-              },
-              child: Text(
-                "Unirse o Crear Reunion",
-                style: TextStyle(color: Colors.white),
-              ),
-              style: ButtonStyle(
-                  backgroundColor:
-                      MaterialStateColor.resolveWith((states) => Theme.of(context).primaryColor)),
-            ),
-          ),
-          SizedBox(
             height: 24.0,
+            thickness: 1.0,
+          ),
+          RoundedButton(
+            text: 'Entrar o crear Reunion',
+            press: () => _joinMeeting()
+          ),
+          SizedBox(
+            height: 12.0,
           ),
         ],
       ),
@@ -254,11 +243,10 @@ class _MeetPageState extends State<MeetPage> {
     }
 
     String servURL = serverUrl;
-    if(servURL.isNotEmpty){
-      if(!servURL.startsWith("https://"))
-        servURL = "https://" + servURL;
-    }else{
-      servURL ="https://meet.jit.si";
+    if (servURL.isNotEmpty) {
+      if (!servURL.startsWith("https://")) servURL = "https://" + servURL;
+    } else {
+      servURL = "https://meet.jit.si";
     }
     // Define meetings options here
     var options = JitsiMeetingOptions(room: roomText.text)

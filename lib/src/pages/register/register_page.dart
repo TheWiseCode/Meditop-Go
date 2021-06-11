@@ -1,6 +1,5 @@
 import 'package:dbcrypt/dbcrypt.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:flutter_switch/flutter_switch.dart';
 import 'package:meditop_go/src/components/rounded_button.dart';
 import 'package:meditop_go/src/components/rounded_date_field.dart';
@@ -20,7 +19,7 @@ class RegisterPage extends StatefulWidget {
 class _RegisterPageState extends State<RegisterPage> {
   GlobalKey<FormState> _keyForm = GlobalKey<FormState>();
   Genero gen = Genero.masculino;
-  late bool _registroPaciente = true;
+  late bool paciente = true;
   late String names;
   late String lastNames;
   late String email;
@@ -70,7 +69,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         inactiveTextColor: Colors.white,
                         activeText: "Paciente",
                         inactiveText: "Medico",
-                        value: _registroPaciente,
+                        value: paciente,
                         valueFontSize: 15.0,
                         height: size.height * 0.06,
                         width: size.width * 0.30,
@@ -78,7 +77,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         showOnOff: true,
                         onToggle: (val) {
                           setState(() {
-                            _registroPaciente = val;
+                            paciente = val;
                           });
                         },
                       ),
@@ -86,9 +85,8 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
               RoundedInputField(
                 onSaved: (value) => names = value!,
-                validator: (value) => value!.isEmpty
-                    ? 'Por favor introduzca sus nombres'
-                    : null,
+                validator: (value) =>
+                    value!.isEmpty ? 'Por favor introduzca sus nombres' : null,
                 icon: Icons.text_fields,
                 hintText: "Nombres",
               ),
@@ -174,42 +172,71 @@ class _RegisterPageState extends State<RegisterPage> {
     if (_keyForm.currentState!.validate()) {
       _keyForm.currentState!.save();
     }
+    bool registrado = await yaRegistrado(email);
+    if (registrado) {
+      dialog(context, "Error: Cliente ya registrado");
+      return;
+    }
     DBCrypt crypt = DBCrypt();
     String salt = crypt.gensaltWithRounds(10);
     String passEncrypted = crypt.hashpw(password, salt);
     try {
       PersonalDatabase db = PersonalDatabase();
       await db.initSimpleDB();
-      String query =
-      '''insert into users(names, lastNames, email, password, birthday, gender) values
-    (?, ?, ?, ?, ?, ?)
-    ''';
-      String genero;
-      switch (gen) {
-        case Genero.masculino:
-          genero = "M";
-          break;
-        case Genero.femenino:
-          genero = "F";
-          break;
-        case Genero.otro:
-          genero = "F";
-          break;
-      }
-      List arguments = [
-        names,
-        lastNames,
-        email,
-        passEncrypted,
-        birthday,
-        genero
-      ];
-      await db.execute(query, arguments);
-      db.close();
-      Navigator.of(context).pop();
-      Navigator.of(context).pushNamed("/home");
-    }catch(e){
+      String genero = switchGenero(gen);
+      Map<String, Object?> map = {
+        "names": names,
+        "lastNames": lastNames,
+        "email": email,
+        "password": passEncrypted,
+        "birthday": birthday,
+        "gender": genero,
+      };
+      User user = User.fromMap(map);
+      await db.insert(user);
+      /*String query =
+          '''insert into users(names, lastNames, email, password, birthday, gender)
+          values ("$names", "$lastNames", "$email", "$passEncrypted", "$birthday", "$genero")''';
+      await db.execute(query);*/
+      //db.close();
+      Navigator.of(context).pushReplacementNamed("/home");
+    } catch (e) {
       print(e);
     }
+  }
+
+  String switchGenero(Genero gen){
+    switch (gen) {
+      case Genero.masculino:
+        return "M";
+      case Genero.femenino:
+        return "F";
+      case Genero.otro:
+        return "O";
+    }
+    return "O";
+  }
+  Future<bool> yaRegistrado(String email) async {
+    PersonalDatabase db = PersonalDatabase();
+    await db.initSimpleDB();
+    String query = '''select * from users where email = "$email" limit 1''';
+    List<Map<String, Object?>> results = await db.rawQuery(query);
+    //db.close();
+    return results.isNotEmpty;
+  }
+
+  void dialog(BuildContext context, String mensaje) {
+    showDialog(
+        context: context,
+        builder: (_) => new AlertDialog(
+              title: new Text("Mensaje Registro"),
+              content: new Text(mensaje),
+              actions: [
+                FlatButton(
+                  child: Text('Cerrar!'),
+                  onPressed: () => Navigator.of(context).pop(),
+                )
+              ],
+            ));
   }
 }

@@ -106,7 +106,7 @@ class _LoginPageState extends State<LoginPage> {
       } else {
         dialog(context, "Email no encontrado");
       }
-      db.close();
+      //db.close();
     } catch (e) {
       print(e);
     }

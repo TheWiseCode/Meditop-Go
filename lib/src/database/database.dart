@@ -20,7 +20,6 @@ class User {
   });
 
   User.fromMap(Map<String, Object?> map) {
-    id = (map['id'] ?? 1) as int?;
     names = (map['names'] ?? "name") as String?;
     lastNames = (map['lastNames'] ?? "lastName") as String?;
     email = (map['email'] ?? "email") as String?;
@@ -52,7 +51,7 @@ class PersonalDatabase {
     _db = await openDatabase('meditop_go.db', version: 1,
         onCreate: (Database db, int version) {
     });
-    /*String usuarios = '''CREATE TABLE IF NOT EXISTS USERS (
+    String query = '''CREATE TABLE IF NOT EXISTS USERS (
         id INTEGER NOT NULL,
         names VARCHAR(100) NOT NULL,
         lastNames VARCHAR(100) NOT NULL,
@@ -61,10 +60,10 @@ class PersonalDatabase {
         birthday DATE NOT NULL,
         gender VARCHAR(1) NOT NULL,
         PRIMARY KEY (id AUTOINCREMENT)
-      );''';*/
+      );''';
     try {
       //String query = 'delete from users where id > 0';
-      //await _db.execute(query);
+      await _db.execute(query);
     }catch(e){
       print(e);
     }
@@ -79,8 +78,6 @@ class PersonalDatabase {
   }
 
   Future<User> insert(User user) async {
-    //_db.rawInsert('''insert into users(name, password) values (
-    //    $user.name, $user.password  )''');
     user.id = await _db.insert("users", user.toMap());
     return user;
   }
@@ -107,12 +104,12 @@ class PersonalDatabase {
 
   Future execute(String query, [List<Object?>? arguments]) async{
     await _db.execute(query, arguments);
-    print('------------QUERY EXECUTED--------');
+    print('------------QUERY EXECUTED----------');
   }
 
   Future<List<Map<String,Object?>>> rawQuery(String query, [List<Object?>? arguments]) async{
     List<Map<String, Object?>> ret = await _db.rawQuery(query, arguments);
-    print('------------RAW QUERY EXECUTED--------');
+    print('------------RAW QUERY EXECUTED----------');
     return ret;
   }
 }

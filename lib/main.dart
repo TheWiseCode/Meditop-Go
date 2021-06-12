@@ -6,7 +6,7 @@ import 'src/services/auth.dart';
 void main() async {
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider(
-      create: (BuildContext context) => Auth(),
+      create: (BuildContext context) => Auth.instance(),
     )
   ], child: MyApp()));
 }

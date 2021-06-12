@@ -8,7 +8,6 @@ class WelcomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    // This size provide us total height and width of our screen
     return Scaffold(
       body: Background(
         child: SingleChildScrollView(
@@ -20,13 +19,6 @@ class WelcomePage extends StatelessWidget {
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               SizedBox(height: size.height * 0.1),
-              /*SizedBox(
-                height: size.height * 0.45,
-                child: SvgPicture.asset(
-                  "assets/icons/chat.svg",
-                  height: size.height * 0.3,
-                ),
-              ),*/
               SizedBox(
                 height: size.height * 0.3,
                 child: Image.asset(
@@ -36,12 +28,18 @@ class WelcomePage extends StatelessWidget {
               SizedBox(height: size.height * 0.1),
               RoundedButton(
                   text: "INGRESAR",
-                  press: () => Navigator.popAndPushNamed(context, "/login")),
+                  press: () {
+                    //tokenLeido = false;
+                    Navigator.pushNamed(context, "/login");
+                  }),
               RoundedButton(
                   text: "REGISTRARSE",
                   color: kPrimaryLightColor,
                   textColor: Colors.black,
-                  press: () => Navigator.popAndPushNamed(context, "/register")),
+                  press: () {
+                    //tokenLeido = false;
+                    Navigator.pushNamed(context, "/register");
+                  }),
             ],
           ),
         ),

@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -7,8 +6,9 @@ import 'package:flutter_switch/flutter_switch.dart';
 import 'package:jitsi_meet/jitsi_meet.dart';
 import 'package:meditop_go/src/components/rounded_button.dart';
 import 'package:meditop_go/src/components/rounded_input_field.dart';
-
-import '../../constants.dart';
+import 'package:meditop_go/src/models/user.dart';
+import 'package:meditop_go/src/services/auth.dart';
+import 'package:provider/provider.dart';
 
 class MeetPage extends StatefulWidget {
   @override
@@ -17,10 +17,10 @@ class MeetPage extends StatefulWidget {
 
 class _MeetPageState extends State<MeetPage> {
   final serverText = TextEditingController();
-  final roomText = TextEditingController(text: "willy.room");
   final subjectText = TextEditingController(text: "Test de Reunion con Jitsi");
-  final nameText = TextEditingController(text: "Usuario Tester");
-  final emailText = TextEditingController(text: "user@email.com");
+  late TextEditingController nameText;
+  late TextEditingController roomText;
+  late TextEditingController emailText;
   final iosAppBarRGBAColor =
       TextEditingController(text: "#0080FF80"); //transparent blue
   var isAudioOnly = true;
@@ -29,6 +29,11 @@ class _MeetPageState extends State<MeetPage> {
 
   @override
   void initState() {
+    User? user = Provider.of<Auth>(context, listen: false).user;
+    nameText = TextEditingController(text: user!.name + " " + user.lastName);
+    emailText = TextEditingController(text: user.email);
+    //roomText = TextEditingController(text: "room.room");
+    roomText = TextEditingController(text: user.name+".room");
     super.initState();
     JitsiMeet.addListener(JitsiMeetingListener(
         onConferenceWillJoin: _onConferenceWillJoin,
@@ -48,7 +53,7 @@ class _MeetPageState extends State<MeetPage> {
     double width = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Jitsi Meet Example'),
+        title: const Text('Consulta Médica'),
       ),
       body: Container(
         padding: const EdgeInsets.symmetric(

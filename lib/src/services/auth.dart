@@ -4,17 +4,19 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:meditop_go/src/models/user.dart';
 import 'dio.dart';
 
-enum AuthStatus{ Uninitialized, Authenticated, Authenticating, Unauthenticated }
+enum AuthStatus{ Uninitialized, Authenticated, Unauthenticated }
 
 class Auth extends ChangeNotifier {
-  bool _isLoggedIn = false;
+  AuthStatus _status = AuthStatus.Uninitialized;
   User? _user;
   String? _token;
 
-  bool get authenticated => _isLoggedIn;
+  AuthStatus get status => _status;
   User? get user => _user;
 
   final storage = FlutterSecureStorage();
+
+  Auth.instance();
 
   Future<bool> register({Map? creds}) async {
     try {
@@ -32,6 +34,7 @@ class Auth extends ChangeNotifier {
   Future<bool> login({Map? creds}) async {
     try {
       Dio.Response response = await dio().post('/login', data: creds);
+      print('RESPONSE DATA LOGIN');
       print(response.data.toString());
       String token = response.data['token'].toString();
       tryGetToken(token: token);
@@ -45,14 +48,16 @@ class Auth extends ChangeNotifier {
 
   Future<bool> tryGetToken({String? token}) async {
     if (token == null) {
+      _status = AuthStatus.Unauthenticated;
+      notifyListeners();
       return false;
     }
     try {
       Dio.Response response = await dio().get('/user',
           options: Dio.Options(headers: {'Authorization': 'Bearer $token'}));
-      this._isLoggedIn = true;
       this._user = User.fromJson(response.data);
       this._token = token;
+      this._status = AuthStatus.Authenticated;
       await storeToken(token: token);
       notifyListeners();
       print(_user.toString());
@@ -83,8 +88,8 @@ class Auth extends ChangeNotifier {
 
   void cleanUp() async {
     this._user = null;
-    this._isLoggedIn = false;
     this._token = null;
+    this._status = AuthStatus.Unauthenticated;
     await storage.delete(key: 'token');
   }
 }

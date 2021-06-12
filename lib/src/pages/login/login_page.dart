@@ -1,6 +1,4 @@
 import 'dart:io';
-
-import 'package:dbcrypt/dbcrypt.dart';
 import 'package:device_info/device_info.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -11,7 +9,6 @@ import 'package:meditop_go/src/components/rounded_password_field.dart';
 import 'package:meditop_go/src/services/auth.dart';
 import 'package:provider/provider.dart';
 import '../../constants.dart';
-import '../../database/database.dart';
 
 import 'background.dart';
 
@@ -103,38 +100,6 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Future login(BuildContext context) async {
-    if (!_keyForm.currentState!.validate()) {
-      return;
-    }
-    _keyForm.currentState!.save();
-    try {
-      PersonalDatabase db = PersonalDatabase();
-      await db.initSimpleDB();
-      String query = '''select * from users where email = "$email" limit 1''';
-      List<Map<String, Object?>> results = await db.rawQuery(query);
-      if (results.isNotEmpty) {
-        Map<String, Object?> user = results.elementAt(0);
-        String? passHashed = user['password'] as String;
-        DBCrypt crypt = DBCrypt();
-        bool correcto = crypt.checkpw(password, passHashed);
-        print('Contraseña correcta: ' + correcto.toString());
-        if (correcto) {
-          Navigator.of(context).pushNamedAndRemoveUntil(
-              "/home", (Route<dynamic> route) => false);
-          _showToast(context, "Contraseña correcta");
-        } else {
-          dialog(context, "Contraseña incorrecta");
-        }
-      } else {
-        dialog(context, "Email no encontrado");
-      }
-      //db.close();
-    } catch (e) {
-      print(e);
-    }
-  }
-
   Future<String> getDeviceName() async{
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
     try{
@@ -161,12 +126,11 @@ class _LoginPageState extends State<LoginPage> {
       setState(() {
         ingresando = true;
       });
-      String token_name = await getDeviceName();
+      String tokenName = await getDeviceName();
       Map credenciales = {
         'email': email,
         'password': password,
-        'token_name': token_name
-        //'device_name' : _deviceName ?? 'desconocido'
+        'token_name': tokenName
       };
       bool logueado = await Provider.of<Auth>(context, listen: false)
           .login(creds: credenciales);
@@ -177,13 +141,7 @@ class _LoginPageState extends State<LoginPage> {
         });
         return;
       }
-      /*bool puede = await Navigator.of(context).maybePop();
-      while(puede){
-        Navigator.of(context).pop();
-        puede = await Navigator.of(context).maybePop();
-      }
-      Navigator.of(context).popAndPushNamed("/home");*/
-      Navigator.of(context).pop();
+      Navigator.of(context).popAndPushNamed("/home");
     }
   }
 

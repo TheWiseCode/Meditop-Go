@@ -1,4 +1,5 @@
-import 'package:dbcrypt/dbcrypt.dart';
+import 'dart:io';
+import 'package:device_info/device_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_switch/flutter_switch.dart';
 import 'package:meditop_go/src/components/rounded_button.dart';
@@ -8,7 +9,6 @@ import 'package:meditop_go/src/components/rounded_password_field.dart';
 import 'package:meditop_go/src/constants.dart';
 import 'package:meditop_go/src/services/auth.dart';
 import 'package:provider/provider.dart';
-import '../../database/database.dart';
 
 import 'background.dart';
 
@@ -121,9 +121,8 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
               RoundedInputField(
                 onSaved: (value) => ci = value!,
-                validator: (value) => value!.isEmpty
-                    ? 'Por favor introduzca un CI valido'
-                    : null,
+                validator: (value) =>
+                    value!.isEmpty ? 'Por favor introduzca un CI valido' : null,
                 icon: Icons.account_box,
                 hintText: "CI",
               ),
@@ -212,43 +211,6 @@ class _RegisterPageState extends State<RegisterPage> {
     ));
   }
 
-  Future registrar(BuildContext context) async {
-    if (_keyForm.currentState!.validate()) {
-      _keyForm.currentState!.save();
-    }
-    bool registrado = await yaRegistrado(email);
-    if (registrado) {
-      dialog(context, "Error: Cliente ya registrado");
-      return;
-    }
-    DBCrypt crypt = DBCrypt();
-    String salt = crypt.gensaltWithRounds(10);
-    String passEncrypted = crypt.hashpw(password, salt);
-    try {
-      PersonalDatabase db = PersonalDatabase();
-      await db.initSimpleDB();
-      String genero = switchGenero(gen);
-      Map<String, Object?> map = {
-        "names": names,
-        "lastNames": lastNames,
-        "email": email,
-        "password": passEncrypted,
-        "birthday": birthday,
-        "gender": genero,
-      };
-      User user = User.fromMap(map);
-      await db.insert(user);
-      /*String query =
-          '''insert into users(names, lastNames, email, password, birthday, gender)
-          values ("$names", "$lastNames", "$email", "$passEncrypted", "$birthday", "$genero")''';
-      await db.execute(query);*/
-      //db.close();
-      Navigator.of(context).pushReplacementNamed("/home");
-    } catch (e) {
-      print(e);
-    }
-  }
-
   String switchGenero(Genero gen) {
     switch (gen) {
       case Genero.masculino:
@@ -261,12 +223,8 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   Future<bool> yaRegistrado(String email) async {
-    PersonalDatabase db = PersonalDatabase();
-    await db.initSimpleDB();
-    String query = '''select * from users where email = "$email" limit 1''';
-    List<Map<String, Object?>> results = await db.rawQuery(query);
-    //db.close();
-    return results.isNotEmpty;
+    //TODO: Realizar con logica de mongoDB
+    return true;
   }
 
   Future registrarMongo(BuildContext context) async {
@@ -278,6 +236,7 @@ class _RegisterPageState extends State<RegisterPage> {
       });
       try {
         String genero = switchGenero(gen);
+        String tokenName = await getDeviceName();
         Map creds = {
           "name": names,
           "last_name": lastNames,
@@ -288,11 +247,12 @@ class _RegisterPageState extends State<RegisterPage> {
           "email": email,
           "password": password,
           "password_confirmation": password,
+          "token_name": tokenName
         };
         bool reg = await Provider.of<Auth>(context, listen: false)
             .register(creds: creds);
         if (!reg) throw Exception();
-        Navigator.of(context).pop();
+        Navigator.of(context).popAndPushNamed("/home");
       } catch (e) {
         dialog(context, "Error en el registro");
         print(e);
@@ -317,5 +277,22 @@ class _RegisterPageState extends State<RegisterPage> {
                 )
               ],
             ));
+  }
+
+  Future<String> getDeviceName() async{
+    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    try{
+      if(Platform.isAndroid){
+        AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+        return androidInfo.model;
+      }else if(Platform.isIOS){
+        IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+        return iosInfo.utsname.machine;
+      }
+      return 'Desconocido';
+    }catch(e){
+      print(e);
+      return 'Desconocido';
+    }
   }
 }

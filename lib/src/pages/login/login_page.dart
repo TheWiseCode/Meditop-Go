@@ -6,6 +6,9 @@ import 'package:meditop_go/src/components/already_have_an_account_acheck.dart';
 import 'package:meditop_go/src/components/rounded_button.dart';
 import 'package:meditop_go/src/components/rounded_input_field.dart';
 import 'package:meditop_go/src/components/rounded_password_field.dart';
+import 'package:meditop_go/src/services/auth.dart';
+import 'package:provider/provider.dart';
+import '../../constants.dart';
 import '../../database/database.dart';
 
 import 'background.dart';
@@ -23,12 +26,11 @@ class _LoginPageState extends State<LoginPage> {
   GlobalKey<FormState> _keyForm = GlobalKey<FormState>();
   late String email;
   late String password;
+  bool ingresando = false;
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery
-        .of(context)
-        .size;
+    Size size = MediaQuery.of(context).size;
     return Scaffold(
       body: Background(
         child: SingleChildScrollView(
@@ -52,23 +54,41 @@ class _LoginPageState extends State<LoginPage> {
                 SizedBox(height: size.height * 0.05),
                 RoundedInputField(
                   onSaved: (value) => email = value!,
-                  validator: (value) =>
-                  value!.isEmpty
+                  validator: (value) => value!.isEmpty
                       ? 'Por favor introduzca un correo valido'
                       : null,
                   hintText: "Tu Correo",
                 ),
                 RoundedPasswordField(
                   onSaved: (value) => password = value!,
-                  validator: (value) =>
-                  value!.isEmpty
+                  validator: (value) => value!.isEmpty
                       ? 'Por favor introduzca una contraseña valida'
                       : null,
                 ),
-                RoundedButton(
-                  text: "INGRESAR",
-                  press: () => login(context),
-                ),
+                if (!ingresando)
+                  RoundedButton(
+                    text: "INGRESAR",
+                    press: () {
+                      //login(context);
+                      loginMongo(context);
+                    },
+                  )
+                else
+                  Container(
+                    margin: EdgeInsets.symmetric(vertical: 10),
+                    width: size.width * 0.8,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(29),
+                      // ignore: deprecated_member_use
+                      child: FlatButton(
+                        padding:
+                            EdgeInsets.symmetric(vertical: 20, horizontal: 40),
+                        color: kPrimaryColor,
+                        onPressed: () {},
+                        child: CircularProgressIndicator(),
+                      ),
+                    ),
+                  ),
                 SizedBox(height: size.height * 0.03),
                 AlreadyHaveAnAccountCheck(
                     press: () => Navigator.pushNamed(context, "/register")),
@@ -81,11 +101,10 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future login(BuildContext context) async {
-    if (_keyForm.currentState!.validate()) {
-      _keyForm.currentState!.save();
-    } else {
+    if (!_keyForm.currentState!.validate()) {
       return;
     }
+    _keyForm.currentState!.save();
     try {
       PersonalDatabase db = PersonalDatabase();
       await db.initSimpleDB();
@@ -98,7 +117,8 @@ class _LoginPageState extends State<LoginPage> {
         bool correcto = crypt.checkpw(password, passHashed);
         print('Contraseña correcta: ' + correcto.toString());
         if (correcto) {
-          Navigator.of(context).pushNamedAndRemoveUntil("/home", (Route<dynamic> route) => false);
+          Navigator.of(context).pushNamedAndRemoveUntil(
+              "/home", (Route<dynamic> route) => false);
           _showToast(context, "Contraseña correcta");
         } else {
           dialog(context, "Contraseña incorrecta");
@@ -112,22 +132,54 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+  Future loginMongo(BuildContext context) async {
+    if (!ingresando) {
+      if (!_keyForm.currentState!.validate()) {
+        return;
+      }
+      _keyForm.currentState!.save();
+      setState(() {
+        ingresando = true;
+      });
+      Map credenciales = {
+        'email': email,
+        'password': password,
+        //'device_name' : _deviceName ?? 'desconocido'
+      };
+      bool logueado = await Provider.of<Auth>(context, listen: false)
+          .login(creds: credenciales);
+      if (!logueado) {
+        dialog(context, "No se pudo inicar sesion");
+        setState(() {
+          ingresando = false;
+        });
+        return;
+      }
+      /*bool puede = await Navigator.of(context).maybePop();
+      while(puede){
+        Navigator.of(context).pop();
+        puede = await Navigator.of(context).maybePop();
+      }
+      Navigator.of(context).popAndPushNamed("/home");*/
+      Navigator.of(context).pop();
+    }
+  }
+
   void dialog(BuildContext context, String mensaje) {
     showDialog(
         context: context,
-        builder: (_) =>
-        new AlertDialog(
-          title: new Text("Mensaje Login"),
-          content: new Text(mensaje),
-          actions: [
-            FlatButton(
-              child: Text('Cerrar!'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            )
-          ],
-        ));
+        builder: (_) => new AlertDialog(
+              title: new Text("Mensaje Login"),
+              content: new Text(mensaje),
+              actions: [
+                FlatButton(
+                  child: Text('Cerrar!'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                )
+              ],
+            ));
   }
 
   void _showToast(BuildContext context, String msg) {

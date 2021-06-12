@@ -10,15 +10,15 @@ import 'pages/welcome/welcome_page.dart';
 import 'providers/push_notification_provider.dart';
 
 class MyApp extends StatefulWidget {
-
   MyApp({Key? key}) : super(key: key);
 
   @override
-  _MyAppState createState() => _MyAppState();
+  _MyAppState createState() {
+    return _MyAppState();
+  }
 }
 
 class _MyAppState extends State<MyApp> {
-
   PersonalDatabase db = PersonalDatabase();
   GlobalKey<NavigatorState> navKey = new GlobalKey<NavigatorState>();
   late PushNotificationProvider provider;
@@ -26,7 +26,6 @@ class _MyAppState extends State<MyApp> {
   Future<void> init() async {
     provider = PushNotificationProvider(navKey);
     await provider.initNotifications();
-    //await PushNotificationProvider.initNotifications();
     provider.mensajes.listen((args) {
       navKey.currentState!.pushNamed("/notification", arguments: args);
     });
@@ -35,51 +34,49 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    init();
-    db.initDB();
+    //init();
+    //db.initDB();
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(
-        brightness: Brightness.light,
-        primaryColor: kPrimaryColor,
-        scaffoldBackgroundColor: Colors.white,
-        accentColor: Colors.indigo[600],
-        appBarTheme: AppBarTheme(iconTheme: IconThemeData(color: Colors.white))
-      ),
+          brightness: Brightness.light,
+          primaryColor: kPrimaryColor,
+          scaffoldBackgroundColor: Colors.white,
+          accentColor: Colors.indigo[600],
+          appBarTheme:
+              AppBarTheme(iconTheme: IconThemeData(color: Colors.white))),
       debugShowCheckedModeBanner: false,
       navigatorKey: navKey,
       title: 'Meditop Go',
-      initialRoute: "/welcome",
+      home: HomePage(),
       onGenerateRoute: (RouteSettings settings) {
         // ignore: missing_return
-        return MaterialPageRoute(
-          builder: (BuildContext context) {
-            switch (settings.name) {
-              case "/welcome":
-                return WelcomePage();
-              case "/login":
-                return LoginPage();
-              case "/register":
-                return RegisterPage();
-              case "/meet":
-                return MeetPage();
-              case "/home":
-                return HomePage();
-              case "/notification":
-                String? texto = settings.arguments as String?;
-                return NotificationPage(texto: texto);
-              default:
-                return WelcomePage();
+        return MaterialPageRoute(builder: (BuildContext context) {
+          switch (settings.name) {
+            case "/welcome":
+              print("Welcome page1");
+              return WelcomePage();
+            case "/login":
+              return LoginPage();
+            case "/register":
+              return RegisterPage();
+            case "/meet":
+              return MeetPage();
+            case "/home":
+              print("Home page2");
+              return HomePage();
+            case "/notification":
+              String? texto = settings.arguments as String?;
+              return NotificationPage(texto: texto);
+            default:
+              print("home 1");
+              return HomePage();
           }
         });
-      /*routes: {
-        "/": (BuildContext context) => MyHomePage(),
-        "/meet": (BuildContext context) => Meeting(),
-        "/notification": (BuildContext context) => NotificationPage(),
-       */},
+      },
     );
   }
 }

@@ -5,6 +5,9 @@ import 'package:meditop_go/src/components/rounded_button.dart';
 import 'package:meditop_go/src/components/rounded_date_field.dart';
 import 'package:meditop_go/src/components/rounded_input_field.dart';
 import 'package:meditop_go/src/components/rounded_password_field.dart';
+import 'package:meditop_go/src/constants.dart';
+import 'package:meditop_go/src/services/auth.dart';
+import 'package:provider/provider.dart';
 import '../../database/database.dart';
 
 import 'background.dart';
@@ -25,6 +28,8 @@ class _RegisterPageState extends State<RegisterPage> {
   late String email;
   late String password;
   late String birthday;
+  TextEditingController birthController = TextEditingController();
+  bool registrando = false;
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +68,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             fontWeight: FontWeight.bold, fontSize: 17),
                       ),
                       FlutterSwitch(
-                        activeColor: Colors.blue,
+                        activeColor: kPrimaryColor,
                         inactiveColor: Colors.green,
                         activeTextColor: Colors.white,
                         inactiveTextColor: Colors.white,
@@ -113,6 +118,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     : null,
               ),
               RoundedDateField(
+                controller: birthController,
                 onSaved: (value) => birthday = value!,
                 validator: (value) => value!.isEmpty
                     ? 'Por favor introduzca una fecha valida'
@@ -132,6 +138,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           Expanded(
                             child: RadioListTile(
                                 title: Text("Masculino"),
+                                activeColor: kPrimaryColor,
                                 contentPadding: EdgeInsets.zero,
                                 value: Genero.masculino,
                                 groupValue: gen,
@@ -144,6 +151,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           Expanded(
                             child: RadioListTile(
                                 title: Text("Femenino"),
+                                activeColor: kPrimaryColor,
                                 contentPadding: EdgeInsets.zero,
                                 value: Genero.femenino,
                                 groupValue: gen,
@@ -157,10 +165,28 @@ class _RegisterPageState extends State<RegisterPage> {
                   ],
                 ),
               ),
-              RoundedButton(
-                text: 'Registrarse',
-                press: () => registrar(context),
-              ),
+              if (!registrando)
+                RoundedButton(
+                    text: 'Registrarse',
+                    press: () {
+                      registrarMongo(context);
+                    })
+              else
+                Container(
+                  margin: EdgeInsets.symmetric(vertical: 10),
+                  width: size.width * 0.8,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(29),
+                    // ignore: deprecated_member_use
+                    child: FlatButton(
+                      padding:
+                          EdgeInsets.symmetric(vertical: 20, horizontal: 40),
+                      color: kPrimaryColor,
+                      onPressed: () {},
+                      child: CircularProgressIndicator(),
+                    ),
+                  ),
+                ),
             ],
           ),
         ),
@@ -205,7 +231,7 @@ class _RegisterPageState extends State<RegisterPage> {
     }
   }
 
-  String switchGenero(Genero gen){
+  String switchGenero(Genero gen) {
     switch (gen) {
       case Genero.masculino:
         return "M";
@@ -214,8 +240,8 @@ class _RegisterPageState extends State<RegisterPage> {
       case Genero.otro:
         return "O";
     }
-    return "O";
   }
+
   Future<bool> yaRegistrado(String email) async {
     PersonalDatabase db = PersonalDatabase();
     await db.initSimpleDB();
@@ -225,6 +251,40 @@ class _RegisterPageState extends State<RegisterPage> {
     return results.isNotEmpty;
   }
 
+  Future registrarMongo(BuildContext context) async {
+    if (!registrando) {
+      if (!_keyForm.currentState!.validate()) return;
+      _keyForm.currentState!.save();
+      setState(() {
+        registrando = true;
+      });
+      try {
+        String genero = switchGenero(gen);
+        Map creds = {
+          "name": names,
+          "last_name": lastNames,
+          "ci": "11341907 SC",
+          "cellphone": "75337753",
+          "birthday": birthday,
+          "sex": genero,
+          "email": email,
+          "password": password,
+          "password_confirmation": password,
+        };
+        bool reg = await Provider.of<Auth>(context, listen: false)
+            .register(creds: creds);
+        if (!reg) throw Exception();
+        Navigator.of(context).pop();
+      } catch (e) {
+        dialog(context, "Error en el registro");
+        print(e);
+        setState(() {
+          registrando = true;
+        });
+      }
+    }
+  }
+
   void dialog(BuildContext context, String mensaje) {
     showDialog(
         context: context,
@@ -232,6 +292,7 @@ class _RegisterPageState extends State<RegisterPage> {
               title: new Text("Mensaje Registro"),
               content: new Text(mensaje),
               actions: [
+                // ignore: deprecated_member_use
                 FlatButton(
                   child: Text('Cerrar!'),
                   onPressed: () => Navigator.of(context).pop(),

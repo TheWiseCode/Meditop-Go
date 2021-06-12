@@ -7,16 +7,17 @@ import '../constants.dart';
 class RoundedDateField extends StatefulWidget {
   final String hintText;
   final IconData icon;
-  final TextEditingController controller = TextEditingController();
+  final TextEditingController controller;
   final FormFieldSetter<String>? onSaved;
   final FormFieldValidator<String>? validator;
 
-  RoundedDateField(
+  const RoundedDateField(
       {Key? key,
       required this.hintText,
       this.icon = Icons.calendar_today,
       this.onSaved,
-      this.validator})
+      this.validator,
+      required this.controller})
       : super(key: key);
 
   @override

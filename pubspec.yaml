@@ -40,6 +40,11 @@ dependencies:
   intl: ^0.17.0
   fluttertoast: ^8.0.7
 
+  provider: ^5.0.0
+  dio: ^4.0.0
+  flutter_secure_storage: ^4.2.0
+  device_info: ^2.0.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

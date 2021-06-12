@@ -31,7 +31,7 @@ class PushNotificationProvider {
       sound: true,
     );
     _messaging.getToken().then((token) {
-      print("-----TOKEN------");
+      print("-----TOKEN FIREBASE------");
       print(token);
     });
     FirebaseMessaging.onMessage.listen(onForeground);

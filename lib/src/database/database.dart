@@ -47,7 +47,8 @@ class PersonalDatabase {
 
   Future initDB() async {
     String path = await getDatabasesPath();
-    print(path + " --------------PATH");
+    print(" --------------PATH DB-------------");
+    print(path);
     _db = await openDatabase('meditop_go.db', version: 1,
         onCreate: (Database db, int version) {
     });
@@ -67,7 +68,7 @@ class PersonalDatabase {
     }catch(e){
       print(e);
     }
-    print("---------DB ABIERTA--------");
+    print("---------DB ABIERTA---------");
   }
 
   Future initSimpleDB() async {

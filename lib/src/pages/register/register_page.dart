@@ -28,6 +28,8 @@ class _RegisterPageState extends State<RegisterPage> {
   late String email;
   late String password;
   late String birthday;
+  late String ci;
+  late String cellphone;
   TextEditingController birthController = TextEditingController();
   bool registrando = false;
 
@@ -57,7 +59,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
               ),
               SizedBox(height: size.height * 0.05),
-              Padding(
+              /*Padding(
                 padding: EdgeInsets.symmetric(horizontal: size.height * 0.05),
                 child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -87,7 +89,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         },
                       ),
                     ]),
-              ),
+              ),*/
               RoundedInputField(
                 onSaved: (value) => names = value!,
                 validator: (value) =>
@@ -108,7 +110,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 validator: (value) => value!.isEmpty
                     ? 'Por favor introduzca una correo valido'
                     : null,
-                icon: Icons.person,
+                icon: Icons.alternate_email,
                 hintText: "Correo Electronico",
               ),
               RoundedPasswordField(
@@ -116,6 +118,22 @@ class _RegisterPageState extends State<RegisterPage> {
                 validator: (value) => value!.isEmpty
                     ? 'Por favor introduzca una contraseña'
                     : null,
+              ),
+              RoundedInputField(
+                onSaved: (value) => ci = value!,
+                validator: (value) => value!.isEmpty
+                    ? 'Por favor introduzca un CI valido'
+                    : null,
+                icon: Icons.account_box,
+                hintText: "CI",
+              ),
+              RoundedInputField(
+                onSaved: (value) => cellphone = value!,
+                validator: (value) => value!.isEmpty
+                    ? 'Por favor introduzca una numero valido'
+                    : null,
+                icon: Icons.phone,
+                hintText: "Numero Celular",
               ),
               RoundedDateField(
                 controller: birthController,
@@ -263,8 +281,8 @@ class _RegisterPageState extends State<RegisterPage> {
         Map creds = {
           "name": names,
           "last_name": lastNames,
-          "ci": "11341907 SC",
-          "cellphone": "75337753",
+          "ci": ci,
+          "cellphone": cellphone,
           "birthday": birthday,
           "sex": genero,
           "email": email,

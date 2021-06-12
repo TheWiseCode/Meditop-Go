@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:meditop_go/src/components/rounded_button.dart';
-
-//import 'package:meditop_go/src/pages/home/scaffolds/home_scaffold.dart';
 import 'package:meditop_go/src/services/auth.dart';
 import 'package:provider/provider.dart';
 import '../../constants.dart';
 import 'background.dart';
-//import 'scaffolds/welcome_scaffold.dart';
 
 class HomePage extends StatefulWidget {
   @override

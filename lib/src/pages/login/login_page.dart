@@ -1,6 +1,8 @@
+import 'dart:io';
+
 import 'package:dbcrypt/dbcrypt.dart';
+import 'package:device_info/device_info.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:meditop_go/src/components/already_have_an_account_acheck.dart';
 import 'package:meditop_go/src/components/rounded_button.dart';
@@ -53,11 +55,12 @@ class _LoginPageState extends State<LoginPage> {
                 ),*/
                 SizedBox(height: size.height * 0.05),
                 RoundedInputField(
+                  icon: Icons.alternate_email,
                   onSaved: (value) => email = value!,
                   validator: (value) => value!.isEmpty
                       ? 'Por favor introduzca un correo valido'
                       : null,
-                  hintText: "Tu Correo",
+                  hintText: "Correo Electronico",
                 ),
                 RoundedPasswordField(
                   onSaved: (value) => password = value!,
@@ -132,6 +135,23 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+  Future<String> getDeviceName() async{
+    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    try{
+      if(Platform.isAndroid){
+        AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+        return androidInfo.model;
+      }else if(Platform.isIOS){
+        IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+        return iosInfo.utsname.machine;
+      }
+      return 'Desconocido';
+    }catch(e){
+      print(e);
+      return 'Desconocido';
+    }
+  }
+
   Future loginMongo(BuildContext context) async {
     if (!ingresando) {
       if (!_keyForm.currentState!.validate()) {
@@ -141,9 +161,11 @@ class _LoginPageState extends State<LoginPage> {
       setState(() {
         ingresando = true;
       });
+      String token_name = await getDeviceName();
       Map credenciales = {
         'email': email,
         'password': password,
+        'token_name': token_name
         //'device_name' : _deviceName ?? 'desconocido'
       };
       bool logueado = await Provider.of<Auth>(context, listen: false)
@@ -172,6 +194,7 @@ class _LoginPageState extends State<LoginPage> {
               title: new Text("Mensaje Login"),
               content: new Text(mensaje),
               actions: [
+                // ignore: deprecated_member_use
                 FlatButton(
                   child: Text('Cerrar!'),
                   onPressed: () {

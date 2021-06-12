@@ -4,6 +4,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:meditop_go/src/models/user.dart';
 import 'dio.dart';
 
+enum AuthStatus{ Uninitialized, Authenticated, Authenticating, Unauthenticated }
+
 class Auth extends ChangeNotifier {
   bool _isLoggedIn = false;
   User? _user;

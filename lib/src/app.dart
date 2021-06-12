@@ -57,7 +57,6 @@ class _MyAppState extends State<MyApp> {
         return MaterialPageRoute(builder: (BuildContext context) {
           switch (settings.name) {
             case "/welcome":
-              print("Welcome page1");
               return WelcomePage();
             case "/login":
               return LoginPage();
@@ -66,13 +65,11 @@ class _MyAppState extends State<MyApp> {
             case "/meet":
               return MeetPage();
             case "/home":
-              print("Home page2");
               return HomePage();
             case "/notification":
               String? texto = settings.arguments as String?;
               return NotificationPage(texto: texto);
             default:
-              print("home 1");
               return HomePage();
           }
         });

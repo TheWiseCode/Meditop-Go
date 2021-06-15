@@ -70,6 +70,6 @@ class _HomePageState extends State<HomePage> {
 
   void _cerrarSesion(BuildContext context) {
     Provider.of<Auth>(context, listen: false).logout();
-    Navigator.of(context).popAndPushNamed("/welcome");
+    Navigator.of(context).pushNamedAndRemoveUntil('/welcome', (route) => false);
   }
 }

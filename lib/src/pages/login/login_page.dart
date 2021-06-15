@@ -141,7 +141,7 @@ class _LoginPageState extends State<LoginPage> {
         });
         return;
       }
-      Navigator.of(context).popAndPushNamed("/home");
+      Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
     }
   }
 

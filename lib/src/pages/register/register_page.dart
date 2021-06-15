@@ -252,7 +252,7 @@ class _RegisterPageState extends State<RegisterPage> {
         bool reg = await Provider.of<Auth>(context, listen: false)
             .register(creds: creds);
         if (!reg) throw Exception();
-        Navigator.of(context).popAndPushNamed("/home");
+        Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
       } catch (e) {
         dialog(context, "Error en el registro");
         print(e);

@@ -10,6 +10,7 @@ class RoundedInputField extends StatelessWidget {
   final TextEditingController? controller;
   final FormFieldSetter<String>? onSaved;
   final FormFieldValidator<String>? validator;
+  final TextInputType keyboardType;
   late double? width;
 
   RoundedInputField({
@@ -20,7 +21,8 @@ class RoundedInputField extends StatelessWidget {
     this.controller,
     this.onSaved,
     this.validator,
-    this.width
+    this.width,
+    this.keyboardType = TextInputType.text
   }) : super(key: key);
 
   @override
@@ -31,6 +33,7 @@ class RoundedInputField extends StatelessWidget {
     return TextFieldContainer(
       width: width,
       child: TextFormField(
+        keyboardType: keyboardType,
         validator: validator,
         onSaved: onSaved,
         controller: controller,

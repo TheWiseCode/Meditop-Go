@@ -133,6 +133,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     : null,
                 icon: Icons.phone,
                 hintText: "Numero Celular",
+                keyboardType: TextInputType.phone,
               ),
               RoundedDateField(
                 controller: birthController,
@@ -254,10 +255,10 @@ class _RegisterPageState extends State<RegisterPage> {
         if (!reg) throw Exception();
         Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
       } catch (e) {
-        dialog(context, "Error en el registro");
+        dialog(context, "Error en el registro, Email ya registrado");
         print(e);
         setState(() {
-          registrando = true;
+          registrando = false;
         });
       }
     }

@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:device_info/device_info.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_switch/flutter_switch.dart';
 import 'package:meditop_go/src/components/rounded_button.dart';
 import 'package:meditop_go/src/components/rounded_date_field.dart';
 import 'package:meditop_go/src/components/rounded_input_field.dart';

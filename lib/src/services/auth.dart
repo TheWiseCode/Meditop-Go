@@ -13,6 +13,7 @@ class Auth extends ChangeNotifier {
 
   AuthStatus get status => _status;
   User? get user => _user;
+  String? get token => _token;
 
   final storage = FlutterSecureStorage();
 
@@ -20,7 +21,7 @@ class Auth extends ChangeNotifier {
 
   Future<bool> register({Map? creds}) async {
     try {
-      Dio.Response response = await dio().post('/register/user', data: creds);
+      Dio.Response response = await http().post('/register/user', data: creds);
       print(response.data.toString());
       String token = response.data['token'].toString();
       tryGetToken(token: token);
@@ -33,7 +34,7 @@ class Auth extends ChangeNotifier {
 
   Future<bool> login({Map? creds}) async {
     try {
-      Dio.Response response = await dio().post('/login', data: creds);
+      Dio.Response response = await http().post('/login', data: creds);
       print('RESPONSE DATA LOGIN');
       print(response.data.toString());
       String token = response.data['token'].toString();
@@ -53,7 +54,7 @@ class Auth extends ChangeNotifier {
       return false;
     }
     try {
-      Dio.Response response = await dio().get('/user',
+      Dio.Response response = await http().get('/user',
           options: Dio.Options(headers: {'Authorization': 'Bearer $token'}));
       this._user = User.fromJson(response.data);
       this._token = token;
@@ -74,7 +75,7 @@ class Auth extends ChangeNotifier {
 
   Future<bool> logout() async {
     try {
-      Dio.Response response = await dio().delete('/logout',
+      Dio.Response response = await http().delete('/logout',
           options: Dio.Options(headers: {'Authorization': 'Bearer $_token'}));
       print(response.data);
       cleanUp();

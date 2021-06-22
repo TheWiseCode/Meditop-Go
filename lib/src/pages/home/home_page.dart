@@ -3,6 +3,7 @@ import 'package:meditop_go/src/components/rounded_button.dart';
 import 'package:meditop_go/src/services/auth.dart';
 import 'package:provider/provider.dart';
 import 'background.dart';
+import 'drawer_widget.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -17,7 +18,8 @@ class _HomePageState extends State<HomePage> {
     return Consumer(builder: (BuildContext context, Auth auth, child) {
       return Scaffold(
         appBar: AppBar(title: Text("Inicio")),
-        drawer: Drawer(
+        drawer: DrawerHome(auth: auth),
+        /*Drawer(
             child: ListView(
           padding: EdgeInsets.zero,
           children: [
@@ -47,7 +49,7 @@ class _HomePageState extends State<HomePage> {
                 leading: Icon(Icons.logout),
                 onTap: () => _cerrarSesion(context)),
           ],
-        )),
+        )),*/
         body: Background(
             child: SingleChildScrollView(
           child: Column(

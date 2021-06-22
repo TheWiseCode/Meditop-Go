@@ -3,7 +3,7 @@ class User {
   String lastName;
   String ci;
   String cellphone;
-  String birthday;
+  String? birthday;
   String sex;
   String email;
 
@@ -22,7 +22,8 @@ class User {
         lastName = json['last_name'],
         ci = json['ci'],
         cellphone = json['cellphone'],
-        birthday = json['birthday'],
         sex = json['sex'],
-        email = json['email'];
+        email = json['email']{
+    birthday = '2020-08-07';
+  }
 }

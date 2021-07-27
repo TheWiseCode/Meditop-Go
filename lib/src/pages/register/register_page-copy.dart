@@ -249,10 +249,10 @@ class _RegisterPageState extends State<RegisterPage> {
           "password_confirmation": password,
           "token_name": tokenName
         };
-        bool reg = await Provider.of<Auth>(context, listen: false)
+        /*bool reg = await Provider.of<Auth>(context, listen: false)
             .register(creds: creds);
         if (!reg) throw Exception();
-        Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
+        Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);*/
       } catch (e) {
         dialog(context, "Error en el registro, Email ya registrado");
         print(e);

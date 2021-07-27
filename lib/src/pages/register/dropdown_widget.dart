@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:meditop_go/src/components/text_field_container.dart';
 
 class DropdownWidget extends StatefulWidget {
-  String? value;
+  late String value;
   double? width;
   List<String>? items;
 

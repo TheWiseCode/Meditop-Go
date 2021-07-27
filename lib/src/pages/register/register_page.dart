@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:device_info/device_info.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:meditop_go/src/components/rounded_button.dart';
 import 'package:meditop_go/src/components/rounded_date_field.dart';
@@ -23,21 +24,23 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
   GlobalKey<FormState> _keyForm = GlobalKey<FormState>();
-  Genero gen = Genero.masculino;
   late bool paciente = true;
   late String names;
   late String lastNames;
   late String email;
   late String password;
+  late String passwordConf;
   late String birthday;
   late String ci;
   late String cellphone;
-  late String sangre;
+  late String blood;
+  String allergies = "";
 
   TextEditingController birthController = TextEditingController();
   bool registrando = false;
   int _currentStep = 0;
-  DropdownWidget dropSex = DropdownWidget(items: ['Masculino', 'Femenino', 'Otro']);
+  DropdownWidget dropSex =
+      DropdownWidget(items: ['Masculino', 'Femenino', 'Otro']);
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +52,9 @@ class _RegisterPageState extends State<RegisterPage> {
             key: _keyForm,
             child: Column(
               children: [
-                SizedBox(height: size.height * 0.075,),
+                SizedBox(
+                  height: size.height * 0.075,
+                ),
                 Text(
                   "REGISTRARSE",
                   style: TextStyle(fontWeight: FontWeight.bold),
@@ -65,41 +70,46 @@ class _RegisterPageState extends State<RegisterPage> {
                   steps: _stepper(),
                   type: FAStepperType.vertical,
                   currentStep: _currentStep,
-                  onStepTapped: (step){
+                  onStepTapped: (step) {
                     setState(() {
                       _currentStep = step;
                     });
                   },
-                  onStepContinue: (){
+                  onStepContinue: () {
                     setState(() {
-                      if(_currentStep < _stepper().length - 1)
-                          _currentStep++;
-                      else
-                        _currentStep = 0;
+                      if (_currentStep < _stepper().length - 1) _currentStep++;
                     });
                   },
-                  onStepCancel: (){
+                  onStepCancel: () {
                     setState(() {
-                      if(_currentStep > 0)
-                          _currentStep--;
-                      else
-                        _currentStep = _stepper().length - 1;
+                      if (_currentStep > 0) _currentStep--;
                     });
                   },
                 ),
+                RoundedButton(
+                    text: 'Registrarse',
+                    press: () {
+                      registrar(context);
+                    })
               ],
             ),
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-          onPressed: () {},
-          backgroundColor: Colors.black,
-          child: Icon(Icons.swap_horizontal_circle)),
     );
   }
 
   List<FAStep> _stepper() {
+    /*List<RoundedInputField> listAlergias = [
+      RoundedInputField(
+        onSaved: (value) => sangre = value!,
+        validator: (value) => value!.isEmpty
+            ? 'Por favor introduzca una alergia'
+            : null,
+        icon: Icons.text_fields,
+        hintText: "Alergia",
+      ),
+    ];*/
     return [
       FAStep(
           title: Text('Datos personales'),
@@ -124,7 +134,7 @@ class _RegisterPageState extends State<RegisterPage> {
               RoundedInputField(
                 onSaved: (value) => ci = value!,
                 validator: (value) =>
-                value!.isEmpty ? 'Por favor introduzca un CI valido' : null,
+                    value!.isEmpty ? 'Por favor introduzca un CI valido' : null,
                 icon: Icons.account_box,
                 hintText: "CI",
               ),
@@ -154,39 +164,67 @@ class _RegisterPageState extends State<RegisterPage> {
           content: Column(
             children: [
               RoundedInputField(
-                onSaved: (value) => sangre = value!,
-                validator: (value) =>
-                value!.isEmpty ? 'Por favor introduzca su tipo de sangre' : null,
+                onSaved: (value) => blood = value!,
+                validator: (value) => value!.isEmpty
+                    ? 'Por favor introduzca su tipo de sangre'
+                    : null,
                 icon: Icons.text_fields,
                 hintText: "Tipo de Sangre",
               ),
+              RoundedInputField(
+                maxLines: 5,
+                onSaved: (value) => allergies = value!,
+                validator: (value) => null,
+                icon: Icons.text_fields,
+                hintText:
+                    "Alergias, introduzca sus alergias separados por una coma",
+              ),
+              /*ListView.builder(
+                  itemCount: listAlergias.length,
+                  itemBuilder: (_, index) => listAlergias[index])*/
             ],
           )),
       FAStep(
           title: Text('Datos de usuario'),
           content: Column(
-            children: [],
+            children: [
+              RoundedInputField(
+                onSaved: (value) => email = value!,
+                validator: (value) => value!.isEmpty
+                    ? 'Por favor introduzca una correo valido'
+                    : null,
+                icon: Icons.alternate_email,
+                hintText: "Correo Electronico",
+              ),
+              RoundedPasswordField(
+                onSaved: (value) => password = value!,
+                validator: (value) =>
+                    value!.isEmpty ? 'Introduzca una contraseña' : null,
+              ),
+              RoundedPasswordField(
+                hintText: "Confirmar contraseña",
+                onSaved: (value) => passwordConf = value!,
+                validator: (value) => value!.isEmpty
+                    ? 'Introduzca la confirmacion de la contraseña'
+                    : null,
+              ),
+            ],
           )),
     ];
   }
 
-  String switchGenero(Genero gen) {
-    switch (gen) {
-      case Genero.masculino:
+  _genero(String gen){
+    switch(gen){
+      case "Masculino":
         return "M";
-      case Genero.femenino:
+      case "Femenino":
         return "F";
-      case Genero.otro:
+      default:
         return "O";
     }
   }
 
-  Future<bool> yaRegistrado(String email) async {
-    //TODO: Realizar con logica de mongoDB
-    return true;
-  }
-
-  Future registrarMongo(BuildContext context) async {
+  Future registrar(BuildContext context) async {
     if (!registrando) {
       if (!_keyForm.currentState!.validate()) return;
       _keyForm.currentState!.save();
@@ -194,8 +232,16 @@ class _RegisterPageState extends State<RegisterPage> {
         registrando = true;
       });
       try {
-        String genero = switchGenero(gen);
+        if(password != passwordConf){
+          this.dialog(context, 'Las contraseñas no coinciden');
+          setState(() {
+            registrando = false;
+          });
+          return;
+        }
+        String genero = _genero(dropSex.value);
         String tokenName = await getDeviceName();
+        print(genero);
         Map creds = {
           "name": names,
           "last_name": lastNames,
@@ -203,18 +249,27 @@ class _RegisterPageState extends State<RegisterPage> {
           "cellphone": cellphone,
           "birthday": birthday,
           "sex": genero,
+          "type_blood": blood,
+          "allergies": allergies + 'Alergias',
           "email": email,
           "password": password,
-          "password_confirmation": password,
+          "password_confirmation": passwordConf,
           "token_name": tokenName
         };
-        bool reg = await Provider.of<Auth>(context, listen: false)
+        Response? response = await Provider.of<Auth>(context, listen: false)
             .register(creds: creds);
-        if (!reg) throw Exception();
+        if (response == null) throw Exception();
+        else if(response.statusCode == 406){
+          dialog(context, response.data['message']);
+          setState(() {
+            registrando = false;
+          });
+          return;
+        }
         Navigator.of(context)
             .pushNamedAndRemoveUntil('/home', (route) => false);
       } catch (e) {
-        dialog(context, "Error en el registro, Email ya registrado");
+        dialog(context, "Error en el registro");
         print(e);
         setState(() {
           registrando = false;

@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart' as Dio;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -19,16 +20,16 @@ class Auth extends ChangeNotifier {
 
   Auth.instance();
 
-  Future<bool> register({Map? creds}) async {
+  Future<Response?> register({Map? creds}) async {
     try {
       Dio.Response response = await http().post('/register/user', data: creds);
       print(response.data.toString());
       String token = response.data['token'].toString();
       tryGetToken(token: token);
-      return true;
-    } catch (exception) {
+      return response;
+    } on DioError catch (e) {
       print("-----------------ERROR REGISTER POST ---------------");
-      return false;
+      return e.response;
     }
   }
 

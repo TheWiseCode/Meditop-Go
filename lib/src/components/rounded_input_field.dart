@@ -12,6 +12,7 @@ class RoundedInputField extends StatelessWidget {
   final FormFieldValidator<String>? validator;
   final TextInputType keyboardType;
   late double? width;
+  late int? maxLines;
 
   RoundedInputField({
     Key? key,
@@ -22,6 +23,7 @@ class RoundedInputField extends StatelessWidget {
     this.onSaved,
     this.validator,
     this.width,
+    this.maxLines,
     this.keyboardType = TextInputType.text
   }) : super(key: key);
 
@@ -30,9 +32,12 @@ class RoundedInputField extends StatelessWidget {
     Size size = MediaQuery.of(context).size;
     if(width == null)
       width = size.width * 0.8;
+    if(maxLines == null)
+      maxLines = 1;
     return TextFieldContainer(
       width: width,
       child: TextFormField(
+        maxLines: maxLines,
         keyboardType: keyboardType,
         validator: validator,
         onSaved: onSaved,

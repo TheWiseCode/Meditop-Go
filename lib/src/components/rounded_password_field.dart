@@ -8,9 +8,11 @@ class RoundedPasswordField extends StatefulWidget {
   final TextEditingController? controller;
   final FormFieldSetter<String>? onSaved;
   final FormFieldValidator<String>? validator;
+  late String? hintText;
 
   RoundedPasswordField({
     Key? key,
+    this.hintText,
     this.onChanged,
     this.controller,
     this.onSaved,
@@ -26,6 +28,8 @@ class _RoundedPasswordFieldState extends State<RoundedPasswordField> {
 
   @override
   Widget build(BuildContext context) {
+    if(widget.hintText == null)
+      widget.hintText = "Contraseña";
     return TextFieldContainer(
       child: TextFormField(
         onSaved: widget.onSaved,
@@ -35,7 +39,7 @@ class _RoundedPasswordFieldState extends State<RoundedPasswordField> {
         onChanged: this.widget.onChanged,
         cursorColor: kPrimaryColor,
         decoration: InputDecoration(
-          hintText: "Contraseña",
+          hintText: widget.hintText,
           icon: Icon(
             Icons.lock,
             color: kPrimaryColor,

@@ -9,7 +9,10 @@ import 'package:meditop_go/src/constants.dart';
 import 'package:meditop_go/src/services/auth.dart';
 import 'package:provider/provider.dart';
 
+import 'package:fa_stepper/fa_stepper.dart';
+
 import 'background.dart';
+import 'dropdown_widget.dart';
 
 enum Genero { masculino, femenino, otro }
 
@@ -29,66 +32,80 @@ class _RegisterPageState extends State<RegisterPage> {
   late String birthday;
   late String ci;
   late String cellphone;
+  late String sangre;
+
   TextEditingController birthController = TextEditingController();
   bool registrando = false;
+  int _currentStep = 0;
+  DropdownWidget dropSex = DropdownWidget(items: ['Masculino', 'Femenino', 'Otro']);
 
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
-        body: Background(
-      child: SingleChildScrollView(
-        child: Form(
-          key: _keyForm,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SizedBox(
-                height: size.height * 0.1,
-              ),
-              Text(
-                "REGISTRARSE",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: size.height * 0.05),
-              SizedBox(
-                height: size.height * 0.3,
-                child: Image.asset(
-                  "assets/images/register.png",
+      body: Background(
+        child: SingleChildScrollView(
+          child: Form(
+            key: _keyForm,
+            child: Column(
+              children: [
+                SizedBox(height: size.height * 0.075,),
+                Text(
+                  "REGISTRARSE",
+                  style: TextStyle(fontWeight: FontWeight.bold),
                 ),
-              ),
-              SizedBox(height: size.height * 0.05),
-              /*Padding(
-                padding: EdgeInsets.symmetric(horizontal: size.height * 0.05),
-                child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "Tipo Usuario",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 17),
-                      ),
-                      FlutterSwitch(
-                        activeColor: kPrimaryColor,
-                        inactiveColor: Colors.green,
-                        activeTextColor: Colors.white,
-                        inactiveTextColor: Colors.white,
-                        activeText: "Paciente",
-                        inactiveText: "Medico",
-                        value: paciente,
-                        valueFontSize: 15.0,
-                        height: size.height * 0.06,
-                        width: size.width * 0.30,
-                        borderRadius: 30.0,
-                        showOnOff: true,
-                        onToggle: (val) {
-                          setState(() {
-                            paciente = val;
-                          });
-                        },
-                      ),
-                    ]),
-              ),*/
+                SizedBox(height: size.height * 0.05),
+                SizedBox(
+                  height: size.height * 0.3,
+                  child: Image.asset(
+                    "assets/images/register.png",
+                  ),
+                ),
+                FAStepper(
+                  steps: _stepper(),
+                  type: FAStepperType.vertical,
+                  currentStep: _currentStep,
+                  onStepTapped: (step){
+                    setState(() {
+                      _currentStep = step;
+                    });
+                  },
+                  onStepContinue: (){
+                    setState(() {
+                      if(_currentStep < _stepper().length - 1)
+                          _currentStep++;
+                      else
+                        _currentStep = 0;
+                    });
+                  },
+                  onStepCancel: (){
+                    setState(() {
+                      if(_currentStep > 0)
+                          _currentStep--;
+                      else
+                        _currentStep = _stepper().length - 1;
+                    });
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+          onPressed: () {},
+          backgroundColor: Colors.black,
+          child: Icon(Icons.swap_horizontal_circle)),
+    );
+  }
+
+  List<FAStep> _stepper() {
+    return [
+      FAStep(
+          title: Text('Datos personales'),
+          subtitle: Text('Rellena tus datos'),
+          content: Column(
+            children: [
               RoundedInputField(
                 onSaved: (value) => names = value!,
                 validator: (value) =>
@@ -105,23 +122,9 @@ class _RegisterPageState extends State<RegisterPage> {
                 hintText: "Apellidos",
               ),
               RoundedInputField(
-                onSaved: (value) => email = value!,
-                validator: (value) => value!.isEmpty
-                    ? 'Por favor introduzca una correo valido'
-                    : null,
-                icon: Icons.alternate_email,
-                hintText: "Correo Electronico",
-              ),
-              RoundedPasswordField(
-                onSaved: (value) => password = value!,
-                validator: (value) => value!.isEmpty
-                    ? 'Por favor introduzca una contraseña'
-                    : null,
-              ),
-              RoundedInputField(
                 onSaved: (value) => ci = value!,
                 validator: (value) =>
-                    value!.isEmpty ? 'Por favor introduzca un CI valido' : null,
+                value!.isEmpty ? 'Por favor introduzca un CI valido' : null,
                 icon: Icons.account_box,
                 hintText: "CI",
               ),
@@ -142,73 +145,29 @@ class _RegisterPageState extends State<RegisterPage> {
                     : null,
                 hintText: 'Fecha de nacimiento',
               ),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: size.height * 0.05),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Genero",
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                    Row(
-                        //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Expanded(
-                            child: RadioListTile(
-                                title: Text("Masculino"),
-                                activeColor: kPrimaryColor,
-                                contentPadding: EdgeInsets.zero,
-                                value: Genero.masculino,
-                                groupValue: gen,
-                                onChanged: (dynamic value) {
-                                  setState(() {
-                                    gen = value;
-                                  });
-                                }),
-                          ),
-                          Expanded(
-                            child: RadioListTile(
-                                title: Text("Femenino"),
-                                activeColor: kPrimaryColor,
-                                contentPadding: EdgeInsets.zero,
-                                value: Genero.femenino,
-                                groupValue: gen,
-                                onChanged: (dynamic value) {
-                                  setState(() {
-                                    gen = value;
-                                  });
-                                }),
-                          ),
-                        ])
-                  ],
-                ),
-              ),
-              if (!registrando)
-                RoundedButton(
-                    text: 'Registrarse',
-                    press: () {
-                      registrarMongo(context);
-                    })
-              else
-                Container(
-                  margin: EdgeInsets.symmetric(vertical: 10),
-                  width: size.width * 0.8,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(29),
-                    // ignore: deprecated_member_use
-                    child: FlatButton(
-                      padding:
-                          EdgeInsets.symmetric(vertical: 20, horizontal: 40),
-                      color: kPrimaryColor,
-                      onPressed: () {},
-                      child: CircularProgressIndicator(),
-                    ),
-                  ),
-                ),
+              dropSex,
             ],
-          ),
-        ),
-      ),
-    ));
+          )),
+      FAStep(
+          title: Text('Datos medicos'),
+          subtitle: Text('Rellena tus datos'),
+          content: Column(
+            children: [
+              RoundedInputField(
+                onSaved: (value) => sangre = value!,
+                validator: (value) =>
+                value!.isEmpty ? 'Por favor introduzca su tipo de sangre' : null,
+                icon: Icons.text_fields,
+                hintText: "Tipo de Sangre",
+              ),
+            ],
+          )),
+      FAStep(
+          title: Text('Datos de usuario'),
+          content: Column(
+            children: [],
+          )),
+    ];
   }
 
   String switchGenero(Genero gen) {
@@ -252,7 +211,8 @@ class _RegisterPageState extends State<RegisterPage> {
         bool reg = await Provider.of<Auth>(context, listen: false)
             .register(creds: creds);
         if (!reg) throw Exception();
-        Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
+        Navigator.of(context)
+            .pushNamedAndRemoveUntil('/home', (route) => false);
       } catch (e) {
         dialog(context, "Error en el registro, Email ya registrado");
         print(e);
@@ -279,18 +239,18 @@ class _RegisterPageState extends State<RegisterPage> {
             ));
   }
 
-  Future<String> getDeviceName() async{
+  Future<String> getDeviceName() async {
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-    try{
-      if(Platform.isAndroid){
+    try {
+      if (Platform.isAndroid) {
         AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
         return androidInfo.model;
-      }else if(Platform.isIOS){
+      } else if (Platform.isIOS) {
         IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
         return iosInfo.utsname.machine;
       }
       return 'Desconocido';
-    }catch(e){
+    } catch (e) {
       print(e);
       return 'Desconocido';
     }

@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:device_info/device_info.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:meditop_go/src/components/already_have_an_account_acheck.dart';
@@ -7,6 +8,7 @@ import 'package:meditop_go/src/components/rounded_button.dart';
 import 'package:meditop_go/src/components/rounded_input_field.dart';
 import 'package:meditop_go/src/components/rounded_password_field.dart';
 import 'package:meditop_go/src/services/auth.dart';
+import 'package:progress_dialog/progress_dialog.dart';
 import 'package:provider/provider.dart';
 import '../../constants.dart';
 
@@ -100,18 +102,18 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Future<String> getDeviceName() async{
+  Future<String> getDeviceName() async {
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-    try{
-      if(Platform.isAndroid){
+    try {
+      if (Platform.isAndroid) {
         AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
         return androidInfo.model;
-      }else if(Platform.isIOS){
+      } else if (Platform.isIOS) {
         IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
         return iosInfo.utsname.machine;
       }
       return 'Desconocido';
-    }catch(e){
+    } catch (e) {
       print(e);
       return 'Desconocido';
     }
@@ -132,16 +134,25 @@ class _LoginPageState extends State<LoginPage> {
         'password': password,
         'token_name': tokenName
       };
-      bool logueado = await Provider.of<Auth>(context, listen: false)
+      Response? res = await Provider.of<Auth>(context, listen: false)
           .login(creds: credenciales);
-      if (!logueado) {
+      if (res != null) {
+        if(res.statusCode == 201){
+          Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
+        }else{
+          setState(() {
+            ingresando = false;
+          });
+          this.dialog(context, res.data['message']);
+          return;
+        }
+      } else {
         dialog(context, "No se pudo inicar sesion");
         setState(() {
           ingresando = false;
         });
         return;
       }
-      Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
     }
   }
 

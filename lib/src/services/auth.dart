@@ -33,18 +33,17 @@ class Auth extends ChangeNotifier {
     }
   }
 
-  Future<bool> login({Map? creds}) async {
+  Future<Response?> login({Map? creds}) async {
     try {
       Dio.Response response = await http().post('/login', data: creds);
       print('RESPONSE DATA LOGIN');
       print(response.data.toString());
       String token = response.data['token'].toString();
       tryGetToken(token: token);
-      return true;
-    } catch (exception) {
+      return response;
+    } on DioError catch (e) {
       print("-----------------ERROR LOGIN POST ---------------");
-      print(exception);
-      return false;
+      return e.response;
     }
   }
 

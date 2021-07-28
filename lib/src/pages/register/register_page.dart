@@ -8,6 +8,7 @@ import 'package:meditop_go/src/components/rounded_input_field.dart';
 import 'package:meditop_go/src/components/rounded_password_field.dart';
 import 'package:meditop_go/src/constants.dart';
 import 'package:meditop_go/src/services/auth.dart';
+import 'package:progress_dialog/progress_dialog.dart';
 import 'package:provider/provider.dart';
 
 import 'package:fa_stepper/fa_stepper.dart';
@@ -213,8 +214,8 @@ class _RegisterPageState extends State<RegisterPage> {
     ];
   }
 
-  _genero(String gen){
-    switch(gen){
+  _genero(String gen) {
+    switch (gen) {
       case "Masculino":
         return "M";
       case "Femenino":
@@ -225,14 +226,18 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   Future registrar(BuildContext context) async {
+    ProgressDialog progDialog = new ProgressDialog(context);
+    progDialog.style(message: 'Realizando registro, espere por favor...');
     if (!registrando) {
       if (!_keyForm.currentState!.validate()) return;
       _keyForm.currentState!.save();
+      await progDialog.show();
       setState(() {
         registrando = true;
       });
       try {
-        if(password != passwordConf){
+        if (password != passwordConf) {
+          await progDialog.hide();
           this.dialog(context, 'Las contraseñas no coinciden');
           setState(() {
             registrando = false;
@@ -258,19 +263,42 @@ class _RegisterPageState extends State<RegisterPage> {
         };
         Response? response = await Provider.of<Auth>(context, listen: false)
             .register(creds: creds);
-        if (response == null) throw Exception();
-        else if(response.statusCode == 406){
-          dialog(context, response.data['message']);
+        if (response == null)
+          throw Exception();
+        else if (response.statusCode == 201) {
+          await progDialog.hide();
           setState(() {
             registrando = false;
           });
+          showDialog(
+              context: context,
+              builder: (_) => new AlertDialog(
+                    title: new Text("Mensaje Registro"),
+                    content: new Text(response.data['message']),
+                    actions: [
+                      // ignore: deprecated_member_use
+                      FlatButton(
+                        child: Text('Cerrar!'),
+                        onPressed: () {
+                          Navigator.of(context)
+                              .pushNamedAndRemoveUntil('/login', (route) => false);
+                        },
+                      )
+                    ],
+                  ));
+          this.dialog(context, response.data['message']);
+        } else if (response.statusCode == 406) {
+          await progDialog.hide();
+          setState(() {
+            registrando = false;
+          });
+          this.dialog(context, response.data['message']);
           return;
         }
-        Navigator.of(context)
-            .pushNamedAndRemoveUntil('/home', (route) => false);
       } catch (e) {
-        dialog(context, "Error en el registro");
+        this.dialog(context, "Error en el registro");
         print(e);
+        await progDialog.hide();
         setState(() {
           registrando = false;
         });

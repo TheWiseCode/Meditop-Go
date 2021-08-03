@@ -8,6 +8,7 @@ import 'package:meditop_go/src/components/rounded_button.dart';
 import 'package:meditop_go/src/components/rounded_input_field.dart';
 import 'package:meditop_go/src/components/rounded_password_field.dart';
 import 'package:meditop_go/src/services/auth.dart';
+import 'package:meditop_go/src/services/dio.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:provider/provider.dart';
 import '../../constants.dart';
@@ -137,21 +138,64 @@ class _LoginPageState extends State<LoginPage> {
       Response? res = await Provider.of<Auth>(context, listen: false)
           .login(creds: credenciales);
       if (res != null) {
-        if(res.statusCode == 201){
-          Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
-        }else{
+        if (res.statusCode == 201) {
+          Navigator.of(context)
+              .pushNamedAndRemoveUntil('/home', (route) => false);
+        } else {
           setState(() {
             ingresando = false;
           });
-          this.dialog(context, res.data['message']);
+          if (res.statusCode == 402) {
+            this.dialogVerify(context, res.data['message']);
+          } else {
+            this.dialog(context, res.data['message']);
+          }
           return;
         }
       } else {
-        dialog(context, "No se pudo inicar sesion");
+        dialog(context, "No se pudo iniciar sesion");
         setState(() {
           ingresando = false;
         });
         return;
+      }
+    }
+  }
+
+  void dialogVerify(BuildContext context, String mensaje) {
+    showDialog(
+        context: context,
+        builder: (_) => new AlertDialog(
+              title: new Text("Mensaje Login"),
+              content: new Text(mensaje),
+              actions: [
+                // ignore: deprecated_member_use
+                FlatButton(
+                  child: Text('Reenviar correo de verificacion!'),
+                  onPressed: () => reenviarVerificacion(context),
+                ),
+                FlatButton(
+                  child: Text('Cerrar!'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            ));
+  }
+
+  Future<void> reenviarVerificacion(BuildContext context) async {
+    Navigator.of(context).pop();
+    Map creds = {'email': email};
+    try {
+      Response response =
+          await http().post('/email/verification-notification', data: creds);
+      if(response.statusCode == 200){
+        this.dialog(context, response.data['message']);
+      }
+    } on DioError catch (e) {
+      if(e.response!.statusCode == 406){
+        this.dialog(context, e.response!.data['message']);
       }
     }
   }

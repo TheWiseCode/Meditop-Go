@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:meditop_go/src/constants.dart';
 import 'package:meditop_go/src/pages/pays/pays_page.dart';
+import 'package:meditop_go/src/pages/reservation/reservation1.dart';
 import 'package:provider/provider.dart';
 import 'database/database.dart';
 import 'pages/home/home_page.dart';
@@ -91,6 +92,8 @@ class _MyAppState extends State<MyApp> {
               return MeetPage();
             case "/home":
               return HomePage();
+            case "/reservation1":
+              return Reservation1Page();
             case "/notification":
               String? texto = settings.arguments as String?;
               return NotificationPage(texto: texto);

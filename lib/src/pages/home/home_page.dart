@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:meditop_go/src/components/rounded_button.dart';
 import 'package:meditop_go/src/services/auth.dart';
 import 'package:provider/provider.dart';
-import 'background.dart';
+
+import '../../constants.dart';
 import 'drawer_widget.dart';
+import 'navigation/agendadas_nav.dart';
+import 'navigation/pasadas_nav.dart';
+import 'navigation/pendientes_nav.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -13,65 +16,58 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  int _selectedIndex = 1;
+  List _widgetOptions = [
+    PasadasNav(),
+    AgendadasNav(),
+    PendientesNav(),
+  ];
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer(builder: (BuildContext context, Auth auth, child) {
       return Scaffold(
-        appBar: AppBar(title: Text("Inicio")),
+        appBar: AppBar(centerTitle: true, title: Text("Meditop Go")),
         drawer: DrawerHome(auth: auth),
-        /*Drawer(
-            child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            if (auth.user != null)
-              UserAccountsDrawerHeader(
-                accountEmail: Text(auth.user!.email),
-                accountName: Text(auth.user!.name),
-                currentAccountPicture: FlutterLogo(),
-                otherAccountsPictures: [
-                  FlutterLogo(),
-                  FlutterLogo(),
-                  FlutterLogo(),
-                ],
-                onDetailsPressed: () {},
-                decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                        colors: [Colors.blue, Colors.indigo],
-                        end: Alignment.bottomRight)),
-              ),
-            ListTile(
-              title: Text("Inicio"),
-              leading: Icon(Icons.home),
-              onTap: () {},
+        body: Center(
+          child: _widgetOptions.elementAt(_selectedIndex),
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+        floatingActionButton: FloatingActionButton.extended(
+          backgroundColor: Colors.black,
+          foregroundColor: Colors.white,
+          icon: Icon(Icons.shopping_cart_outlined),
+          onPressed: () {
+            Navigator.of(context).pushNamed('/reservation1');
+          },
+          label: Text('Nueva reserva'),
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              label: 'Pasadas',
             ),
-            ListTile(
-                title: Text("Cerrar sesion"),
-                leading: Icon(Icons.logout),
-                onTap: () => _cerrarSesion(context)),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.business),
+              label: 'Agendadas',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              label: 'Pendientes',
+            ),
           ],
-        )),*/
-        body: Background(
-            child: SingleChildScrollView(
-          child: Column(
-            children: [
-              Text(
-                "Presione en el boton de abajo para ver a que reunion entrar",
-                textAlign: TextAlign.center,
-              ),
-              RoundedButton(
-                  text: "Entrar",
-                  press: () {
-                    Navigator.of(context).pushNamed("/meet");
-                  })
-            ],
-          ),
-        )),
+          currentIndex: _selectedIndex,
+          selectedItemColor: kPrimaryColor,
+          onTap: _onItemTapped,
+        ),
       );
     });
-  }
-
-  void _cerrarSesion(BuildContext context) {
-    Provider.of<Auth>(context, listen: false).logout();
-    Navigator.of(context).pushNamedAndRemoveUntil('/welcome', (route) => false);
   }
 }

@@ -137,6 +137,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 validator: (value) =>
                     value!.isEmpty ? 'Por favor introduzca un CI valido' : null,
                 icon: Icons.account_box,
+                keyboardType: TextInputType.number,
                 hintText: "CI",
               ),
               RoundedInputField(
@@ -195,6 +196,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     ? 'Por favor introduzca una correo valido'
                     : null,
                 icon: Icons.alternate_email,
+                keyboardType: TextInputType.emailAddress,
                 hintText: "Correo Electronico",
               ),
               RoundedPasswordField(
@@ -280,8 +282,8 @@ class _RegisterPageState extends State<RegisterPage> {
                       FlatButton(
                         child: Text('Cerrar!'),
                         onPressed: () {
-                          Navigator.of(context)
-                              .pushNamedAndRemoveUntil('/login', (route) => false);
+                          Navigator.of(context).pushNamedAndRemoveUntil(
+                              '/login', (route) => false);
                         },
                       )
                     ],
@@ -295,6 +297,10 @@ class _RegisterPageState extends State<RegisterPage> {
           this.dialog(context, response.data['message']);
           return;
         }
+        await progDialog.hide();
+        setState(() {
+          registrando = false;
+        });
       } catch (e) {
         this.dialog(context, "Error en el registro");
         print(e);

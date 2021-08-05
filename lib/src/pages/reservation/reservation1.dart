@@ -41,31 +41,31 @@ class _Reservation1PageState extends State<Reservation1Page> {
           child: Icon(Icons.arrow_forward_rounded),
           backgroundColor: Colors.black,
           foregroundColor: Colors.white,
-          onPressed: () {
-            //Navigator.of(context).pushNamed('/reservation1');
-          },
+          onPressed: () => _goToSchedule(context),
         ),
         body: _specialties == null
             ? Center(child: CircularProgressIndicator())
             : Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: SingleChildScrollView(
-                    child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Text('Lista de especialidades',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 16)),
-                    ),
-                    _specialties!.length == 0
-                        ? Center(
-                            child: Text('No hay especialidades disponibles'))
-                        : listSpecialties(context),
-                  ],
-                )),
-              ));
+          padding: const EdgeInsets.all(8.0),
+          child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Text('Lista de especialidades',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 16)),
+                  ),
+                  _specialties!.length == 0
+                      ? Center(
+                      child: Text('No hay especialidades disponibles'))
+                      : listSpecialties(context),
+                ],
+              )),
+        ));
   }
+
+  int _selected = -1;
 
   Widget listSpecialties(BuildContext context) {
     return ListView.builder(
@@ -74,28 +74,63 @@ class _Reservation1PageState extends State<Reservation1Page> {
         itemCount: this._specialties!.length,
         itemBuilder: (BuildContext context, int index) {
           String name = _specialties![index]['name'];
-          return Column(
-            children: [
-              const SizedBox(height: 5),
-              Card(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ListTile(
-                      leading: Icon(Icons.medical_services),
-                      title: Text('Especialidad'),
-                      subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(name),
-                          ]),
-                    ),
-                  ],
+          return GestureDetector(
+            onTap: () {
+              setState(() {
+                _selected = index;
+              });
+            },
+            child: Column(
+              children: [
+                const SizedBox(height: 5),
+                Card(
+                  color: index == _selected
+                      ? Color.fromRGBO(202, 234, 255, 1)
+                      : Colors.white,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ListTile(
+                        leading: Icon(Icons.medical_services),
+                        title: Text('Especialidad'),
+                        subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(name),
+                            ]),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 5),
-            ],
+                const SizedBox(height: 5),
+              ],
+            ),
           );
         });
+  }
+
+  _goToSchedule(BuildContext context) {
+    if (_selected == -1) {
+      showDialog(
+          context: context,
+          builder: (_) =>
+          new AlertDialog(
+            title: new Text("Mensaje Reserva"),
+            content: new Text("Seleccione una especialidad para continuar"),
+            actions: [
+              // ignore: deprecated_member_use
+              FlatButton(
+                child: Text('Cerrar!'),
+                onPressed: () => Navigator.of(context).pop(),
+              )
+            ],
+          ));
+      return;
+    }
+    Map data = {
+      'id_specialty': _specialties![_selected]['id'],
+      'name_specialty': _specialties![_selected]['name']
+    };
+    Navigator.of(context).pushNamed('/reservation2', arguments: data);
   }
 }

@@ -3,11 +3,14 @@ import 'package:meditop_go/src/components/text_field_container.dart';
 
 class DropdownWidget extends StatefulWidget {
   String? value;
+  int? selectedItem;
   double? width;
   List<String>? items;
 
-  DropdownWidget({Key? key, this.width, required this.items}) : super(key: key){
+  DropdownWidget({Key? key, this.width, required this.items})
+      : super(key: key) {
     value = items![0];
+    selectedItem = 0;
   }
 
   @override
@@ -30,6 +33,7 @@ class _DropdownWidgetState extends State<DropdownWidget> {
           underline: Container(height: 0),
           onChanged: (String? newValue) {
             setState(() {
+              widget.selectedItem = posValue(newValue);
               widget.value = newValue!;
             });
           },
@@ -40,5 +44,11 @@ class _DropdownWidgetState extends State<DropdownWidget> {
             );
           }).toList(),
         ));
+  }
+
+  int? posValue(String? newValue) {
+    for (int i = 0; i < widget.items!.length; i++)
+      if (newValue == widget.items![i]) return i;
+    return -1;
   }
 }

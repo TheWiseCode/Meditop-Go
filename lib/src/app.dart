@@ -11,6 +11,8 @@ import 'pages/login/login_page.dart';
 import 'pages/meet/meet_page.dart';
 import 'pages/notification/notification_page.dart';
 import 'pages/register/register_page.dart';
+import 'pages/reservation/reservation2.dart';
+import 'pages/reservation/reservation3.dart';
 import 'pages/welcome/welcome_page.dart';
 import 'providers/push_notification_provider.dart';
 import 'services/auth.dart';
@@ -62,13 +64,13 @@ class _MyAppState extends State<MyApp> {
           scaffoldBackgroundColor: Colors.white,
           accentColor: Colors.indigo[600],
           appBarTheme:
-          AppBarTheme(iconTheme: IconThemeData(color: Colors.white))),
+              AppBarTheme(iconTheme: IconThemeData(color: Colors.white))),
       debugShowCheckedModeBanner: false,
       navigatorKey: navKey,
       title: 'Meditop Go',
       home: Consumer(
-        builder: (context, Auth auth, child){
-          switch(auth.status){
+        builder: (context, Auth auth, child) {
+          switch (auth.status) {
             case AuthStatus.Uninitialized:
               return LoadPage();
             case AuthStatus.Authenticated:
@@ -94,6 +96,12 @@ class _MyAppState extends State<MyApp> {
               return HomePage();
             case "/reservation1":
               return Reservation1Page();
+            case "/reservation2":
+              Map data = settings.arguments as Map;
+              return Reservation2Page(data: data);
+            case "/reservation3":
+              Map data = settings.arguments as Map;
+              return Reservation3Page(data: data);
             case "/notification":
               String? texto = settings.arguments as String?;
               return NotificationPage(texto: texto);

@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 class NotificationPage extends StatelessWidget {
   late String text;
 
-  NotificationPage({Key? key, String? texto}) : super(key: key){
-    if(texto == null)
+  NotificationPage({Key? key, String? texto}) : super(key: key) {
+    if (texto == null)
       text = "null";
     else
       text = texto;
@@ -14,10 +14,12 @@ class NotificationPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Notificaciones')),
-      body: Center(
-        child: Text(text)
-      ),
+      appBar: AppBar(
+          title: Text(
+        'Notificaciones',
+        textAlign: TextAlign.center,
+      )),
+      body: Center(child: Text(text)),
     );
   }
 }

@@ -1,4 +1,5 @@
 class User {
+  int idPatient;
   String name;
   String lastName;
   String ci;
@@ -8,6 +9,7 @@ class User {
   String email;
 
   User({
+    required this.idPatient,
     required this.name,
     required this.lastName,
     required this.ci,
@@ -18,7 +20,8 @@ class User {
   });
 
   User.fromJson(Map<String, dynamic> json)
-      : name = json['name'],
+      : idPatient = json['id_patient'],
+        name = json['name'],
         lastName = json['last_name'],
         ci = json['ci'],
         cellphone = json['cellphone'],

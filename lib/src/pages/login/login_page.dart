@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:device_info/device_info.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:meditop_go/src/components/already_have_an_account_acheck.dart';
 import 'package:meditop_go/src/components/rounded_button.dart';
@@ -9,7 +10,6 @@ import 'package:meditop_go/src/components/rounded_input_field.dart';
 import 'package:meditop_go/src/components/rounded_password_field.dart';
 import 'package:meditop_go/src/services/auth.dart';
 import 'package:meditop_go/src/services/dio.dart';
-import 'package:progress_dialog/progress_dialog.dart';
 import 'package:provider/provider.dart';
 import '../../constants.dart';
 
@@ -25,6 +25,8 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+
+  final storage = FlutterSecureStorage();
   GlobalKey<FormState> _keyForm = GlobalKey<FormState>();
   late String email;
   late String password;
@@ -73,7 +75,7 @@ class _LoginPageState extends State<LoginPage> {
                     text: "INGRESAR",
                     press: () {
                       //login(context);
-                      loginMongo(context);
+                      login(context);
                     },
                   )
                 else
@@ -120,7 +122,7 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  Future loginMongo(BuildContext context) async {
+  Future login(BuildContext context) async {
     if (!ingresando) {
       if (!_keyForm.currentState!.validate()) {
         return;
@@ -129,11 +131,13 @@ class _LoginPageState extends State<LoginPage> {
       setState(() {
         ingresando = true;
       });
+      String? tokenFirebase = await storage.read(key: 'token_firebase');
       String tokenName = await getDeviceName();
       Map credenciales = {
         'email': email,
         'password': password,
-        'token_name': tokenName
+        'token_name': tokenName,
+        'token_firebase' : tokenFirebase
       };
       Response? res = await Provider.of<Auth>(context, listen: false)
           .login(creds: credenciales);
@@ -141,6 +145,7 @@ class _LoginPageState extends State<LoginPage> {
         if (res.statusCode == 201) {
           Navigator.of(context)
               .pushNamedAndRemoveUntil('/home', (route) => false);
+          //MyApp.provider.initNotificationsToken();
         } else {
           setState(() {
             ingresando = false;

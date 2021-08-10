@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:meditop_go/src/components/rounded_button.dart';
 import 'background.dart';
 import '../../constants.dart';

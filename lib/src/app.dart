@@ -1,23 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:meditop_go/src/constants.dart';
-import 'package:meditop_go/src/pages/pays/pays_page.dart';
-import 'package:meditop_go/src/pages/reservation/reservation1.dart';
 import 'package:provider/provider.dart';
-import 'database/database.dart';
+import 'constants.dart';
 import 'pages/home/home_page.dart';
 import 'pages/load/load_page.dart';
 import 'pages/login/login_page.dart';
 import 'pages/meet/meet_page.dart';
 import 'pages/notification/notification_page.dart';
 import 'pages/register/register_page.dart';
+import 'pages/reservation/reservation1.dart';
 import 'pages/reservation/reservation2.dart';
 import 'pages/reservation/reservation3.dart';
+import 'pages/reservation/reservation4.dart';
 import 'pages/welcome/welcome_page.dart';
 import 'providers/push_notification_provider.dart';
 import 'services/auth.dart';
 
 class MyApp extends StatefulWidget {
+  static late PushNotificationProvider provider;
   MyApp({Key? key}) : super(key: key);
 
   @override
@@ -27,15 +27,15 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  PersonalDatabase db = PersonalDatabase();
+  //PersonalDatabase db = PersonalDatabase();
   GlobalKey<NavigatorState> navKey = new GlobalKey<NavigatorState>();
-  late PushNotificationProvider provider;
+  //static late PushNotificationProvider provider;
   final storage = FlutterSecureStorage();
 
   Future<void> init() async {
-    provider = PushNotificationProvider(navKey);
-    await provider.initNotifications();
-    provider.mensajes.listen((args) {
+    MyApp.provider = PushNotificationProvider(navKey);
+    await MyApp.provider.initNotificationsToken();
+    MyApp.provider.mensajes.listen((args) {
       navKey.currentState!.pushNamed("/notification", arguments: args);
     });
   }
@@ -44,6 +44,7 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     readToken();
+    init();
   }
 
   Future readToken() async {
@@ -102,11 +103,12 @@ class _MyAppState extends State<MyApp> {
             case "/reservation3":
               Map data = settings.arguments as Map;
               return Reservation3Page(data: data);
+            case "/reservation4":
+              Map data = settings.arguments as Map;
+              return Reservation4Page(data: data);
             case "/notification":
               String? texto = settings.arguments as String?;
               return NotificationPage(texto: texto);
-            case "/pays":
-              return PayPage();
             default:
               return HomePage();
           }

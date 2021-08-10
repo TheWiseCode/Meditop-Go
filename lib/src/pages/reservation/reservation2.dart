@@ -128,7 +128,7 @@ class _Reservation2PageState extends State<Reservation2Page> {
           s += 'Lun,';
           break;
         case 'Martes':
-          s += 'Mar';
+          s += 'Mar,';
           break;
         case 'Miercoles':
           s += 'Mier,';
@@ -137,10 +137,10 @@ class _Reservation2PageState extends State<Reservation2Page> {
           s += 'Jue';
           break;
         case 'Viernes':
-          s += 'Vier';
+          s += 'Vier,';
           break;
         case 'Sabado':
-          s += 'Sab';
+          s += 'Sab,';
           break;
         case 'Domingo':
           s += 'Dom';

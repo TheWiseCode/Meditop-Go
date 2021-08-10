@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:meditop_go/src/components/rounded_button.dart';
 import 'package:meditop_go/src/pages/pays/dropdown_widget.dart';
+import 'package:meditop_go/src/services/auth.dart';
 import 'package:meditop_go/src/services/dio.dart';
+import 'package:provider/provider.dart';
 
 class Reservation3Page extends StatefulWidget {
   Map data;
@@ -23,7 +25,6 @@ class _Reservation3PageState extends State<Reservation3Page> {
   @override
   void initState() {
     super.initState();
-    _dates = [];
     _loadData();
   }
 
@@ -165,10 +166,20 @@ class _Reservation3PageState extends State<Reservation3Page> {
 
   _goToFinalReserve(BuildContext context) async {
     bool verificado = await _verificar(context);
-    if(!verificado){
+    if (!verificado) {
       return;
     }
-    Map data = {};
+    int id = Provider.of<Auth>(context, listen: false).user!.idPatient;
+    Map data = {
+      'id_patient': id,
+      'id_offer': widget.data['id_offer'],
+      'datetime': _dates![dropDates!.selectedItem as int] +
+          ' ' +
+          dropTimes.value +
+          ':00',
+      'name_specialty': widget.data['name_specialty'],
+      'name': widget.data['name'],
+    };
     Navigator.of(context).pushNamed('/reservation4', arguments: data);
   }
 
@@ -207,8 +218,10 @@ class _Reservation3PageState extends State<Reservation3Page> {
   Future<bool> _verificar(BuildContext context) async {
     Map data = {
       'id_offer': widget.data['id_offer'],
-      'date': _dates![dropDates!.selectedItem as int],
-      'time': dropTimes.value
+      'datetime': _dates![dropDates!.selectedItem as int] +
+          ' ' +
+          dropTimes.value +
+          ':00',
     };
     try {
       Response response =

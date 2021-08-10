@@ -4,14 +4,17 @@ import 'dart:io';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class PushNotificationProvider {
   static late GlobalKey<NavigatorState> _navKey;
   static FirebaseMessaging _messaging = FirebaseMessaging.instance;
   static late String args;
+  final storage = FlutterSecureStorage();
 
   // ignore: close_sinks
   final _mensajesStreamController = StreamController<String>.broadcast();
+
   Stream<String> get mensajes => _mensajesStreamController.stream;
 
   PushNotificationProvider(GlobalKey<NavigatorState> navKey) {
@@ -30,8 +33,29 @@ class PushNotificationProvider {
       provisional: false,
       sound: true,
     );
-    _messaging.getToken().then((token) {
+    FirebaseMessaging.onMessage.listen(onForeground);
+    FirebaseMessaging.onMessageOpenedApp.listen(onMessageOpened);
+    FirebaseMessaging.onBackgroundMessage(onBackground);
+  }
+
+  Future<void> initNotificationsToken() async {
+    WidgetsFlutterBinding.ensureInitialized();
+    await Firebase.initializeApp();
+    _messaging.requestPermission(
+      alert: true,
+      announcement: false,
+      badge: true,
+      carPlay: false,
+      criticalAlert: false,
+      provisional: false,
+      sound: true,
+    );
+    _messaging.getToken().then((token) async {
       print("-----TOKEN FIREBASE------");
+      String? tokenAnt = await storage.read(key: 'token_firebase');
+      if (tokenAnt == null || tokenAnt != token)
+        storage.write(key: 'token_firebase', value: token);
+      print(tokenAnt);
       print(token);
     });
     FirebaseMessaging.onMessage.listen(onForeground);
@@ -45,7 +69,7 @@ class PushNotificationProvider {
     if (message.notification != null) {
       args = 'sin-data';
       if (Platform.isAndroid) {
-        args = message.data['comida'] ?? 'sin-data';
+        args = message.data['message'] ?? 'sin-data';
       }
       //_mensajesStreamController.sink.add(args);
       _navKey.currentState!.restorablePush(_dialogBuilder);
@@ -58,10 +82,10 @@ class PushNotificationProvider {
 
   void onMessageOpened(RemoteMessage message) {
     print("Cuando se abre la notificacion en 2do plano");
-    print(message.data['comida']);
+    print(message.data['message']);
     args = 'sin-data';
     if (Platform.isAndroid) {
-      args = message.data['comida'] ?? 'sin-data';
+      args = message.data['message'] ?? 'sin-data';
     }
     _mensajesStreamController.sink.add(args);
     //_navKey.currentState!.pushNamed("/notification", arguments: args);
@@ -93,9 +117,10 @@ class PushNotificationProvider {
                   },
                   // ignore: deprecated_member_use
                   child: RaisedButton(
-                    onPressed: (){
+                    onPressed: () {
                       _navKey.currentState!.pop();
-                      _navKey.currentState!.pushNamed("/notification", arguments: args);
+                      _navKey.currentState!
+                          .pushNamed("/notification", arguments: args);
                     },
                     child: Text('Ver'),
                   )),
@@ -104,7 +129,7 @@ class PushNotificationProvider {
         });
   }
 
-  void dispose(){
+  void dispose() {
     _mensajesStreamController.close();
   }
 }

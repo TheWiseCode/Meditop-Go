@@ -5,7 +5,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:meditop_go/src/models/user.dart';
 import 'dio.dart';
 
-enum AuthStatus{ Uninitialized, Authenticated, Unauthenticated }
+enum AuthStatus { Uninitialized, Authenticated, Unauthenticated }
 
 class Auth extends ChangeNotifier {
   AuthStatus _status = AuthStatus.Uninitialized;
@@ -13,7 +13,9 @@ class Auth extends ChangeNotifier {
   String? _token;
 
   AuthStatus get status => _status;
+
   User? get user => _user;
+
   String? get token => _token;
 
   final storage = FlutterSecureStorage();
@@ -61,7 +63,7 @@ class Auth extends ChangeNotifier {
       this._status = AuthStatus.Authenticated;
       await storeToken(token: token);
       notifyListeners();
-      print(_user.toString());
+      print(_user!.idPatient);
       return true;
     } catch (e) {
       print(e);
@@ -75,8 +77,11 @@ class Auth extends ChangeNotifier {
 
   Future<bool> logout() async {
     try {
+      String? tokenFirebase = await storage.read(key: 'token_firebase');
+      Map data = {'token_firebase': tokenFirebase};
       Dio.Response response = await http().delete('/logout',
-          options: Dio.Options(headers: {'Authorization': 'Bearer $_token'}));
+          options: Dio.Options(headers: {'Authorization': 'Bearer $_token'}),
+          data: data);
       print(response.data);
       cleanUp();
       notifyListeners();

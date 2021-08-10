@@ -6,12 +6,11 @@ import 'package:meditop_go/src/components/rounded_button.dart';
 import 'package:meditop_go/src/components/rounded_date_field.dart';
 import 'package:meditop_go/src/components/rounded_input_field.dart';
 import 'package:meditop_go/src/components/rounded_password_field.dart';
-import 'package:meditop_go/src/constants.dart';
 import 'package:meditop_go/src/services/auth.dart';
-import 'package:progress_dialog/progress_dialog.dart';
 import 'package:provider/provider.dart';
 
 import 'package:fa_stepper/fa_stepper.dart';
+import 'package:sn_progress_dialog/sn_progress_dialog.dart';
 
 import 'background.dart';
 import 'dropdown_widget.dart';
@@ -228,18 +227,25 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   Future registrar(BuildContext context) async {
-    ProgressDialog progDialog = new ProgressDialog(context);
-    progDialog.style(message: 'Realizando registro, espere por favor...');
+    ProgressDialog pd = new ProgressDialog(context: context);
     if (!registrando) {
       if (!_keyForm.currentState!.validate()) return;
       _keyForm.currentState!.save();
-      await progDialog.show();
+      pd.show(
+        max: 100,
+        msg: 'Realizando registro...',
+        backgroundColor: Color(0xff212121),
+        progressValueColor: Color(0xff3550B4),
+        progressBgColor: Colors.white70,
+        msgColor: Colors.white,
+        valueColor: Colors.white,
+      );
       setState(() {
         registrando = true;
       });
       try {
         if (password != passwordConf) {
-          await progDialog.hide();
+          pd.close();
           this.dialog(context, 'Las contraseñas no coinciden');
           setState(() {
             registrando = false;
@@ -268,7 +274,7 @@ class _RegisterPageState extends State<RegisterPage> {
         if (response == null)
           throw Exception();
         else if (response.statusCode == 201) {
-          await progDialog.hide();
+          pd.close();
           setState(() {
             registrando = false;
           });
@@ -290,21 +296,21 @@ class _RegisterPageState extends State<RegisterPage> {
                   ));
           this.dialog(context, response.data['message']);
         } else if (response.statusCode == 406) {
-          await progDialog.hide();
+          pd.close();
           setState(() {
             registrando = false;
           });
           this.dialog(context, response.data['message']);
           return;
         }
-        await progDialog.hide();
+        pd.close();
         setState(() {
           registrando = false;
         });
       } catch (e) {
         this.dialog(context, "Error en el registro");
         print(e);
-        await progDialog.hide();
+        pd.close();
         setState(() {
           registrando = false;
         });

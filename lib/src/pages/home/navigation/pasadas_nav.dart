@@ -35,20 +35,23 @@ class _PasadasNavState extends State<PasadasNav> {
       padding: const EdgeInsets.all(8.0),
       child: _pasadas == null
           ? Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Text('Consultas pasadas',
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                ),
-                _pasadas!.length == 0
-                    ? Center(child: Text('No tiene consultas pasadas'))
-                    : listAgendadas(context),
-              ],
-            )),
+          : RefreshIndicator(
+              onRefresh: () => _actualizarData(context),
+              child: SingleChildScrollView(
+                  child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Text('Consultas pasadas',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 16)),
+                  ),
+                  _pasadas!.length == 0
+                      ? Center(child: Text('No tiene consultas pasadas'))
+                      : listAgendadas(context),
+                ],
+              )),
+            ),
     ));
   }
 
@@ -104,5 +107,14 @@ class _PasadasNavState extends State<PasadasNav> {
             ],
           );
         });
+  }
+
+  _actualizarData(BuildContext context) async {
+    String? token = Provider.of<Auth>(context, listen: false).token;
+    Response response = await http().get('/get-past',
+        options: Options(headers: {'Authorization': 'Bearer $token'}));
+    setState(() {
+      _pasadas = response.data;
+    });
   }
 }

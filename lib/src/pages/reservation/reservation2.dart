@@ -134,7 +134,7 @@ class _Reservation2PageState extends State<Reservation2Page> {
           s += 'Mier,';
           break;
         case 'Jueves':
-          s += 'Jue';
+          s += 'Jue,';
           break;
         case 'Viernes':
           s += 'Vier,';
@@ -176,6 +176,7 @@ class _Reservation2PageState extends State<Reservation2Page> {
           _schedules![_selected]['last_name'],
       'start': _schedules![_selected]['time_start'],
       'end': _schedules![_selected]['time_end'],
+      'schedule': _daysLine(_schedules![_selected]['days'])
     };
     Navigator.of(context).pushNamed('/reservation3', arguments: data);
   }

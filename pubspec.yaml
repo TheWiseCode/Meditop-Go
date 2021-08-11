@@ -45,11 +45,12 @@ dependencies:
   flutter_secure_storage: ^4.2.0
   device_info: ^2.0.2
 
-#  progress_dialog:
   sn_progress_dialog: ^1.0.1
   fa_stepper: ^0.0.2
+  syncfusion_flutter_calendar: ^19.2.51
 
   flutter_launcher_icons: ^0.9.1
+  timezone: ^0.7.0
 
 dev_dependencies:
   flutter_test:

@@ -35,21 +35,25 @@ class _PendientesNavState extends State<PendientesNav> {
       padding: const EdgeInsets.all(8.0),
       child: _pendientes == null
           ? Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Text('Reservas pendientes',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 16)),
-                  ),
-                  _pendientes!.length == 0
-                      ? Center(child: Text('No tiene reservas pendientes'))
-                      : listAgendadas(context),
-                ],
+          : RefreshIndicator(
+            onRefresh: () => _actualizarData(context),
+            child: SingleChildScrollView(
+                physics: AlwaysScrollableScrollPhysics(),
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Text('Reservas pendientes',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 16)),
+                    ),
+                    _pendientes!.length == 0
+                        ? Center(child: Text('No tiene reservas pendientes'))
+                        : listAgendadas(context),
+                  ],
+                ),
               ),
-            ),
+          ),
     ));
   }
 
@@ -107,5 +111,14 @@ class _PendientesNavState extends State<PendientesNav> {
             ],
           );
         });
+  }
+
+  _actualizarData(BuildContext context) async {
+    String? token = Provider.of<Auth>(context, listen: false).token;
+    Response response = await http().get('/get-pending',
+        options: Options(headers: {'Authorization': 'Bearer $token'}));
+    setState(() {
+      _pendientes = response.data;
+    });
   }
 }

@@ -57,6 +57,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),*/
                 SizedBox(height: size.height * 0.05),
                 RoundedInputField(
+                  keyboardType: TextInputType.emailAddress,
                   icon: Icons.alternate_email,
                   onSaved: (value) => email = value!,
                   validator: (value) => value!.isEmpty

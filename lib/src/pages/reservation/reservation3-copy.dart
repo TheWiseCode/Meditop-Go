@@ -6,7 +6,6 @@ import 'package:meditop_go/src/components/dropdown_widget.dart';
 import 'package:meditop_go/src/services/auth.dart';
 import 'package:meditop_go/src/services/dio.dart';
 import 'package:provider/provider.dart';
-import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 class Reservation3Page extends StatefulWidget {
   Map data;
@@ -21,8 +20,7 @@ class Reservation3Page extends StatefulWidget {
 
 class _Reservation3PageState extends State<Reservation3Page> {
   List? _dates;
-  List? _times;
-  CalendarController calController = CalendarController();
+  late DropdownWidget dropTimes;
 
   @override
   void initState() {
@@ -32,12 +30,13 @@ class _Reservation3PageState extends State<Reservation3Page> {
 
   Future<void> _loadData() async {
     try {
-      _times = [];
-      _loadTimes(widget.data['start'], widget.data['end']);
+      List<String> times = _loadTimes(widget.data['start'], widget.data['end']);
+      dropTimes = DropdownWidget(items: times);
       Map data = {'id_offer': widget.data['id_offer']};
       Response response = await http().post('/offers', data: data);
       setState(() {
         _dates = response.data;
+        dropDates = DropdownWidget(items: _cargarDates(_dates));
         print(_dates);
       });
     } catch (Exception) {
@@ -49,32 +48,16 @@ class _Reservation3PageState extends State<Reservation3Page> {
 
   @override
   Widget build(BuildContext context) {
-    DateTime? dateInitial;
-    DateTime? dateEnd;
-    double? timeStart;
-    double? timeEnd;
-    if (_dates != null && _times != null) {
-      int n = _dates!.length;
-      int m = _times!.length;
-      DateFormat dateFormat = DateFormat("yyyy-MM-dd HH:mm");
-      DateFormat timeFormat = DateFormat("HH:mm");
-      DateTime timeI = timeFormat.parse(_times![0]);
-      DateTime timeE =
-          timeFormat.parse(_times![m - 1]).add(Duration(minutes: 30));
-      dateInitial = dateFormat.parse(_dates![0] + ' 00:00');
-      dateEnd = dateFormat.parse(_dates![n - 1] + ' 00:00');
-      timeStart = timeI.hour + timeI.minute / 60;
-      timeEnd = timeE.hour + timeE.minute / 60;
-    }
     return Scaffold(
         appBar: AppBar(centerTitle: true, title: Text("Reservacion")),
+        //floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         floatingActionButton: FloatingActionButton(
           child: Icon(Icons.arrow_forward_rounded),
           backgroundColor: Colors.black,
           foregroundColor: Colors.white,
           onPressed: () => _goToFinalReserve(context),
         ),
-        body: _dates == null
+        body: _dates == null || dropDates == null
             ? Center(child: CircularProgressIndicator())
             : Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -89,41 +72,39 @@ class _Reservation3PageState extends State<Reservation3Page> {
                             Text('Seleccionar dia de reserva',
                                 style: TextStyle(
                                     fontWeight: FontWeight.bold, fontSize: 18)),
+                            SizedBox(height: 10),
                             Text('Doctor: ' + widget.data['name'],
                                 style: TextStyle(fontSize: 16)),
                             Text(
                                 'Especialidad: ' +
                                     widget.data['name_specialty'],
                                 style: TextStyle(fontSize: 16)),
-                            Text('Horario: ' + widget.data['start']+' - '+widget.data['end'],
+                            Text('Horario inicio: ' + widget.data['start'],
                                 style: TextStyle(fontSize: 16)),
-                            Text('Dias atencion: ' + widget.data['schedule'],
+                            Text('Horario final: ' + widget.data['end'],
                                 style: TextStyle(fontSize: 16)),
-                            Container(
-                              height: 500,
-                              child: SfCalendar(
-                                controller: calController,
-                                blackoutDates: [
-                                  DateTime.now().add(Duration(days: 2))
-                                ],
-                                view: CalendarView.week,
-                                timeSlotViewSettings: TimeSlotViewSettings(
-                                    //nonWorkingDays: [6, 7],
-                                    startHour: timeStart as double,
-                                    endHour: timeEnd as double,
-                                    timeFormat: 'HH:mm',
-                                    timeInterval: const Duration(minutes: 30)),
-                                //initialDisplayDate: dateTime,
-                                firstDayOfWeek: dateInitial!.weekday,
-                                minDate: dateInitial,
-                                maxDate: dateEnd,
-                                //initialDisplayDate: DateTime(2021, 08, 11, 06, 00),
-                                //initialSelectedDate: DateTime(2021, 08, 11, 06, 00),
-                              ),
-                            ),
+                            SizedBox(height: 20),
+                            Text('Dia de la reserva',
+                                style: TextStyle(fontWeight: FontWeight.bold)),
+                            dropDates!,
+                            SizedBox(height: 20),
+                            Text('Hora de la reserva',
+                                style: TextStyle(fontWeight: FontWeight.bold)),
+                            dropTimes,
+                            SizedBox(height: 20),
                             RoundedButton(
                                 text: 'Verificar disponibilidad',
-                                press: () => _verificar(context, true)),
+                                press: () => _verificar(context))
+                            //listDates(context)
+                            /*DateField(
+                              width: double.infinity,
+                              onSaved: (value) => date = value!,
+                              validator: (value) => value!.isEmpty
+                                  ? 'Introduzca la fecha de la reserva'
+                                  : null,
+                              hintText: 'Ejm: 2020-08-07',
+                              controller: _dateText,
+                            ),*/
                           ],
                         ),
                       ),
@@ -133,37 +114,89 @@ class _Reservation3PageState extends State<Reservation3Page> {
               ));
   }
 
+  List<String> _cargarDates(List? dates) {
+    List<String> fechas = [];
+    for (int i = 0; i < dates!.length; i++) {
+      DateFormat dateFormat = DateFormat("yyyy-MM-dd");
+      DateTime dateTime = dateFormat.parse(dates[i]);
+      String date = _dayName(dateTime.weekday) +
+          ' ' +
+          dateTime.day.toString() +
+          ' de ' +
+          _monthName(dateTime.month) +
+          ' de ' +
+          dateTime.year.toString();
+      fechas.add(date);
+    }
+    return fechas;
+  }
+
+  String _dayName(int day) {
+    List names = [
+      'Lunes',
+      'Martes',
+      'Miercoles',
+      'Jueves',
+      'Viernes',
+      'Sabado',
+      'Domingo'
+    ];
+    return names[day - 1];
+  }
+
+  String _monthName(int month) {
+    List names = [
+      'Enero',
+      'Febrero',
+      'Marzo',
+      'Abril',
+      'Mayo',
+      'Junio',
+      'Julio',
+      'Agosto',
+      'Septiembre',
+      'Octubre',
+      'Novimbre',
+      'Diciembre'
+    ];
+    return names[month - 1];
+  }
+
+  DropdownWidget? dropDates;
+
   _goToFinalReserve(BuildContext context) async {
-    bool verificado = await _verificar(context, false);
+    bool verificado = await _verificar(context);
     if (!verificado) {
       return;
     }
     int id = Provider.of<Auth>(context, listen: false).user!.idPatient;
-    String datetime = DateFormat('yyyy-MM-dd HH:mm:ss')
-        .format(calController.selectedDate as DateTime);
     Map data = {
       'id_patient': id,
       'id_offer': widget.data['id_offer'],
-      'datetime': datetime,
+      'datetime': _dates![dropDates!.selectedItem as int] +
+          ' ' +
+          dropTimes.value +
+          ':00',
       'name_specialty': widget.data['name_specialty'],
       'name': widget.data['name'],
     };
     Navigator.of(context).pushNamed('/reservation4', arguments: data);
   }
 
-  void _loadTimes(start, end) {
+  List<String> _loadTimes(start, end) {
     DateFormat dateFormat = DateFormat("HH:mm:ss");
     DateTime timeStart = dateFormat.parse(start.toString());
     DateTime timeEnd = dateFormat.parse(end.toString());
     TimeOfDay tstart = TimeOfDay.fromDateTime(timeStart);
     TimeOfDay tend = TimeOfDay.fromDateTime(timeEnd);
+    List<String> times = [];
     while (!(tstart.hour == tend.hour && tstart.minute == tend.minute)) {
-      String time = tstart.hour.toString().padLeft(2, '0') +
+      times.add(tstart.hour.toString().padLeft(2, '0') +
           ':' +
-          tstart.minute.toString().padLeft(2, '0');
-      _times!.add(time);
+          tstart.minute.toString().padLeft(2, '0'));
       tstart = addMinutes(tstart, 30);
     }
+    return times;
   }
 
   TimeOfDay addMinutes(TimeOfDay time, int minutes) {
@@ -182,36 +215,18 @@ class _Reservation3PageState extends State<Reservation3Page> {
     }
   }
 
-  bool _verificarHorarioDia(DateTime day1){
-    DateTime compare = DateTime(day1.year, day1.month, day1.day);
-    for (int i = 0; i < _dates!.length; i++) {
-      DateFormat df = DateFormat('yyyy-MM-dd');
-      DateTime day = df.parse(_dates![i]);
-      if(day.compareTo(compare) == 0)
-        return true;
-    }
-    return false;
-  }
-
-  Future<bool> _verificar(BuildContext context, bool mostrarTrue) async {
-    if (calController.selectedDate == null) {
-      dialog(context, 'Seleccione un horario para continuar');
-      return false;
-    }
-    DateTime selected = calController.selectedDate as DateTime;
-    if(!_verificarHorarioDia(selected)){
-        dialog(context, 'Seleccione un dia valido de horario para continuar');
-        return false;
-    }
-    String datetime = DateFormat('yyyy-MM-dd HH:mm:ss').format(selected);
+  Future<bool> _verificar(BuildContext context) async {
     Map data = {
       'id_offer': widget.data['id_offer'],
-      'datetime': datetime,
+      'datetime': _dates![dropDates!.selectedItem as int] +
+          ' ' +
+          dropTimes.value +
+          ':00',
     };
     try {
       Response response =
           await http().post('/verified-reservation', data: data);
-      if (response.statusCode == 200 && mostrarTrue) {
+      if (response.statusCode == 200) {
         dialog(context, response.data['message']);
       }
       return true;

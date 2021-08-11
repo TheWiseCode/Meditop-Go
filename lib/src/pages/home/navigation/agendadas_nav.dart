@@ -35,20 +35,24 @@ class _AgendadasNavState extends State<AgendadasNav> {
       padding: const EdgeInsets.all(8.0),
       child: _agendadas == null
           ? Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Text('Consultas agendadas',
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                ),
-                _agendadas!.length == 0
-                    ? Center(child: Text('No tiene consultas agendadas'))
-                    : listAgendadas(context),
-              ],
-            )),
+          : RefreshIndicator(
+              onRefresh: () => _actualizarData(context),
+              child: SingleChildScrollView(
+                  physics: AlwaysScrollableScrollPhysics(),
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text('Consultas agendadas',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16)),
+                      ),
+                      _agendadas!.length == 0
+                          ? Center(child: Text('No tiene consultas agendadas'))
+                          : listAgendadas(context),
+                    ],
+                  )),
+            ),
     ));
   }
 
@@ -105,5 +109,14 @@ class _AgendadasNavState extends State<AgendadasNav> {
             ],
           );
         });
+  }
+
+  _actualizarData(BuildContext context) async {
+    String? token = Provider.of<Auth>(context, listen: false).token;
+    Response response = await http().get('/get-scheduled',
+        options: Options(headers: {'Authorization': 'Bearer $token'}));
+    setState(() {
+      _agendadas = response.data;
+    });
   }
 }

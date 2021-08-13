@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:device_info/device_info.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:meditop_go/src/components/dropdown_widget.dart';
 import 'package:meditop_go/src/components/rounded_button.dart';
 import 'package:meditop_go/src/components/rounded_date_field.dart';
 import 'package:meditop_go/src/components/rounded_input_field.dart';
@@ -13,7 +14,6 @@ import 'package:fa_stepper/fa_stepper.dart';
 import 'package:sn_progress_dialog/sn_progress_dialog.dart';
 
 import 'background.dart';
-import 'dropdown_widget.dart';
 
 enum Genero { masculino, femenino, otro }
 
@@ -252,7 +252,7 @@ class _RegisterPageState extends State<RegisterPage> {
           });
           return;
         }
-        String genero = _genero(dropSex.value);
+        String genero = _genero(dropSex.value as String);
         String tokenName = await getDeviceName();
         print(genero);
         Map creds = {

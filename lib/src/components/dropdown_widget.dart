@@ -15,6 +15,12 @@ class DropdownWidget extends StatefulWidget {
 
   @override
   _DropdownWidgetState createState() => _DropdownWidgetState();
+
+  int? posValue(String? newValue) {
+    for (int i = 0; i < items!.length; i++)
+      if (newValue == items![i]) return i;
+    return -1;
+  }
 }
 
 class _DropdownWidgetState extends State<DropdownWidget> {
@@ -33,7 +39,7 @@ class _DropdownWidgetState extends State<DropdownWidget> {
           underline: Container(height: 0),
           onChanged: (String? newValue) {
             setState(() {
-              widget.selectedItem = posValue(newValue);
+              widget.selectedItem = widget.posValue(newValue);
               widget.value = newValue!;
             });
           },
@@ -44,11 +50,5 @@ class _DropdownWidgetState extends State<DropdownWidget> {
             );
           }).toList(),
         ));
-  }
-
-  int? posValue(String? newValue) {
-    for (int i = 0; i < widget.items!.length; i++)
-      if (newValue == widget.items![i]) return i;
-    return -1;
   }
 }

@@ -5,10 +5,13 @@ import 'package:provider/provider.dart';
 import '../../constants.dart';
 import 'drawer_widget.dart';
 import 'navigation/agendadas_nav.dart';
-import 'navigation/pasadas_nav.dart';
-import 'navigation/pendientes_nav.dart';
+import 'navigation/historial_nav.dart';
 
 class HomePage extends StatefulWidget {
+
+int? page;
+  HomePage({this.page});
+
   @override
   _HomePageState createState() {
     return _HomePageState();
@@ -16,27 +19,27 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _selectedIndex = 1;
   List _widgetOptions = [
-    PasadasNav(),
     AgendadasNav(),
-    PendientesNav(),
+    HistorialNav(),
   ];
 
   void _onItemTapped(int index) {
     setState(() {
-      _selectedIndex = index;
+      widget.page = index;
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    if(widget.page == null)
+        widget.page = 1;
     return Consumer(builder: (BuildContext context, Auth auth, child) {
       return Scaffold(
         appBar: AppBar(centerTitle: true, title: Text("Meditop Go")),
         drawer: DrawerHome(auth: auth),
         body: Center(
-          child: _widgetOptions.elementAt(_selectedIndex),
+          child: _widgetOptions.elementAt(widget.page as int),
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         floatingActionButton: FloatingActionButton.extended(
@@ -51,19 +54,15 @@ class _HomePageState extends State<HomePage> {
         bottomNavigationBar: BottomNavigationBar(
           items: const [
             BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: 'Pasadas',
-            ),
-            BottomNavigationBarItem(
               icon: Icon(Icons.business),
               label: 'Agendadas',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.home),
-              label: 'Pendientes',
+              label: 'Historial',
             ),
           ],
-          currentIndex: _selectedIndex,
+          currentIndex: widget.page as int,
           selectedItemColor: kPrimaryColor,
           onTap: _onItemTapped,
         ),

@@ -13,10 +13,10 @@ class HistorialNav extends StatefulWidget {
 }
 
 class _HistorialNavState extends State<HistorialNav> {
-
   late String value;
   late int selectedItem;
   List? _reservas;
+  List? _todas;
   List<String> _filtro = [
     'Todas',
     'Pendiente',
@@ -34,7 +34,6 @@ class _HistorialNavState extends State<HistorialNav> {
   }
 
   Future<void> loadReservasFiltro(String filtro) async {
-    print(filtro);
     String? token = Provider.of<Auth>(context, listen: false).token;
     Map data = {'filtro': filtro};
     Response response = await http().post('/get-by-filter',
@@ -42,18 +41,28 @@ class _HistorialNavState extends State<HistorialNav> {
         options: Options(headers: {'Authorization': 'Bearer $token'}));
     print(response.data);
     setState(() {
-      _reservas = response.data;
+      _todas = response.data;
+      _reservas = _todas;
     });
   }
 
-  /*Future<void> loadReservas() async {
+  Future<void> refresh(String filtro) async {
     String? token = Provider.of<Auth>(context, listen: false).token;
-    Response response = await http().get('/get-pending',
+    Map data = {'filtro': filtro};
+    Response response = await http().post('/get-by-filter',
+        data: data,
         options: Options(headers: {'Authorization': 'Bearer $token'}));
+    print(response.data);
     setState(() {
-      _reservas = response.data;
+      _todas = response.data;
+      _reservas = [];
+      for (int i = 0; i < _todas!.length; i++) {
+        if (_todas![i]['state'] == filtro) {
+          _reservas!.add(_todas![i]);
+        }
+      }
     });
-  }*/
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +72,7 @@ class _HistorialNavState extends State<HistorialNav> {
       child: _reservas == null
           ? Center(child: CircularProgressIndicator())
           : RefreshIndicator(
-              onRefresh: () => loadReservasFiltro(value.toLowerCase()),
+              onRefresh: () => refresh(value.toLowerCase()),
               child: SingleChildScrollView(
                 physics: AlwaysScrollableScrollPhysics(),
                 child: Column(
@@ -145,6 +154,23 @@ class _HistorialNavState extends State<HistorialNav> {
         });
   }
 
+  void filtrar(String filtro) {
+    if(filtro == 'todas'){
+      setState(() {
+        _reservas = _todas;
+      });
+      return;
+    }
+    setState(() {
+      _reservas = [];
+      for (int i = 0; i < _todas!.length; i++) {
+        if (_todas![i]['state'] == filtro) {
+          _reservas!.add(_todas![i]);
+        }
+      }
+    });
+  }
+
   Widget filtroDrop(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     double width = size.width * 1;
@@ -162,7 +188,7 @@ class _HistorialNavState extends State<HistorialNav> {
               selectedItem = posValue(newValue as String);
               value = newValue;
             });
-            loadReservasFiltro(newValue!.toLowerCase());
+            filtrar(newValue!.toLowerCase());
           },
           items: _filtro.map<DropdownMenuItem<String>>((String value) {
             return DropdownMenuItem<String>(

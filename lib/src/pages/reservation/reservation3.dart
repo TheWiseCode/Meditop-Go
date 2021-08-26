@@ -62,7 +62,7 @@ class _Reservation3PageState extends State<Reservation3Page> {
       DateTime timeE =
           timeFormat.parse(_times![m - 1]).add(Duration(minutes: 30));
       dateInitial = dateFormat.parse(_dates![0] + ' 00:00');
-      dateEnd = dateFormat.parse(_dates![n - 1] + ' 00:00');
+      dateEnd = dateFormat.parse(_dates![n - 1] + ' 00:00').add(Duration(days: 1));
       timeStart = timeI.hour + timeI.minute / 60;
       timeEnd = timeE.hour + timeE.minute / 60;
     }

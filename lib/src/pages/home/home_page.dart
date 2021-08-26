@@ -8,8 +8,8 @@ import 'navigation/agendadas_nav.dart';
 import 'navigation/historial_nav.dart';
 
 class HomePage extends StatefulWidget {
+  int? page;
 
-int? page;
   HomePage({this.page});
 
   @override
@@ -32,8 +32,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    if(widget.page == null)
-        widget.page = 1;
+    if (widget.page == null) widget.page = 0;
     return Consumer(builder: (BuildContext context, Auth auth, child) {
       return Scaffold(
         appBar: AppBar(centerTitle: true, title: Text("Meditop Go")),

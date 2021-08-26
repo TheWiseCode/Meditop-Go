@@ -33,7 +33,6 @@ class _RegisterPageState extends State<RegisterPage> {
   late String birthday;
   late String ci;
   late String cellphone;
-  late String blood;
   String allergies = "";
 
   TextEditingController birthController = TextEditingController();
@@ -41,6 +40,8 @@ class _RegisterPageState extends State<RegisterPage> {
   int _currentStep = 0;
   DropdownWidget dropSex =
       DropdownWidget(items: ['Masculino', 'Femenino', 'Otro']);
+  DropdownWidget dropSangre =
+      DropdownWidget(items: ['O+', 'O-', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-']);
 
   @override
   Widget build(BuildContext context) {
@@ -164,14 +165,7 @@ class _RegisterPageState extends State<RegisterPage> {
           subtitle: Text('Rellena tus datos'),
           content: Column(
             children: [
-              RoundedInputField(
-                onSaved: (value) => blood = value!,
-                validator: (value) => value!.isEmpty
-                    ? 'Por favor introduzca su tipo de sangre'
-                    : null,
-                icon: Icons.text_fields,
-                hintText: "Tipo de Sangre",
-              ),
+              dropSangre,
               RoundedInputField(
                 maxLines: 5,
                 onSaved: (value) => allergies = value!,
@@ -262,7 +256,7 @@ class _RegisterPageState extends State<RegisterPage> {
           "cellphone": cellphone,
           "birthday": birthday,
           "sex": genero,
-          "type_blood": blood,
+          "type_blood": dropSangre.value,
           "allergies": allergies + 'Alergias',
           "email": email,
           "password": password,

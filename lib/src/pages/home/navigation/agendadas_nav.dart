@@ -24,12 +24,17 @@ class _AgendadasNavState extends State<AgendadasNav> {
     Response response = await http().get('/get-scheduled',
         options: Options(headers: {'Authorization': 'Bearer $token'}));
     setState(() {
-      _agendadas = response.data;
+      try {
+        _agendadas = response.data;
+      } catch (e) {
+        _agendadas = null;
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    //loadAgendadas();
     return Scaffold(
         body: Padding(
       padding: const EdgeInsets.all(8.0),
@@ -80,6 +85,9 @@ class _AgendadasNavState extends State<AgendadasNav> {
                   children: [
                     ListTile(
                       leading: Icon(Icons.medical_services),
+                      trailing: RaisedButton(
+                          onPressed: () => _inRoom(context, _agendadas![index]),
+                          child: Text('Entrar')),
                       title: Text('Especialidad: $specialty'),
                       subtitle: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -118,5 +126,42 @@ class _AgendadasNavState extends State<AgendadasNav> {
     setState(() {
       _agendadas = response.data;
     });
+  }
+
+  _inRoom(BuildContext context, Map datos) async {
+    int id = datos['id_consult'];
+    print(datos);
+    String? token = Provider.of<Auth>(context, listen: false).token;
+    Map data = {'id_consult': id};
+    Response response = await http().post('/consult-in',
+        data: data,
+        options: Options(headers: {'Authorization': 'Bearer $token'}));
+    if (response.statusCode == 200) {
+      print(response.data['message']);
+      String link = datos['url_jitsi'];
+      Navigator.of(context).pushNamed("/consult", arguments: link);
+    } else {
+      print(response.data['message']);
+      dialog(context, response.data['message']);
+      //Navigator.of(context).pushNamed("/meet");
+    }
+  }
+
+  void dialog(BuildContext context, String mensaje) {
+    showDialog(
+        context: context,
+        builder: (_) => new AlertDialog(
+          title: new Text("Mensaje Consulta"),
+          content: new Text(mensaje),
+          actions: [
+            // ignore: deprecated_member_use
+            FlatButton(
+              child: Text('Cerrar!'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            )
+          ],
+        ));
   }
 }

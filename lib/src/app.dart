@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
 import 'constants.dart';
+import 'pages/consult/consult_page.dart';
 import 'pages/home/home_page.dart';
 import 'pages/load/load_page.dart';
 import 'pages/login/login_page.dart';
@@ -95,6 +96,9 @@ class _MyAppState extends State<MyApp> {
               return MeetPage();
             case "/home":
               return HomePage();
+            case "/consult":
+              String link = settings.arguments as String;
+              return ConsultPage(link);
             case "/reservation1":
               return Reservation1Page();
             case "/reservation2":
